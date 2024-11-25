@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "774357600638",
+    "project_id": "timesphere-cd8af",
+    "storage_bucket": "timesphere-cd8af.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:774357600638:android:2ea15143c3f80ff0394b2f",
+        "android_client_info": {
+          "package_name": "com.example.timesphere"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "774357600638-v0k0kge366v42gp6sam2g996asjm8270.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.timesphere",
+            "certificate_hash": "38824951dfac832a09fe79446e3fe2880a89d8ae"
+          }
+        },
+        {
+          "client_id": "774357600638-h3mp9c20qknor65em9gmkifaktod5kt1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCa9e_nWadLwhla9zrmwqLbkXmsFLUbfKM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "774357600638-h3mp9c20qknor65em9gmkifaktod5kt1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
