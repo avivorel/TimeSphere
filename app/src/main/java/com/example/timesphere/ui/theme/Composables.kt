@@ -32,9 +32,9 @@ fun RoundedCornerCardTop(
 }
 
 @Composable
-fun ClockInButton(text :String,) {
+fun ClockInButton(text :String,onClick: () -> Unit) {
     Button(
-        onClick = { /* Handle click action here */ },
+        onClick = { onClick() },
         modifier = Modifier
             .size(100.dp) // Circular size
             .clip(CircleShape), // Ensures the button is circular
@@ -53,5 +53,5 @@ fun ClockInButton(text :String,) {
 @Composable
 @Preview
 fun Preview(){
-    ClockInButton("Clock In")
+  //  ClockInButton("Clock In")
 }

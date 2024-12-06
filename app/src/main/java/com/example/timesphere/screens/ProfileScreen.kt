@@ -6,9 +6,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.navigation.NavHost
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 
 @Composable
-fun ProfileScreen(){
+fun ProfileScreen(
+    navHost: NavHostController = rememberNavController()
+){
     val title by remember{ mutableStateOf("Profile screen") }
 
     Column() {

@@ -1,6 +1,8 @@
 package com.example.timesphere.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,12 +16,14 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
@@ -27,12 +31,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.timesphere.ui.theme.RoundedCornerCardTop
-import com.example.timesphere.viewmodels.CredentialsViewModel
+import com.example.timesphere.viewmodels.AppViewModel
 
 @Composable
-fun VerifyCredentials(){
-    val credsViewModel : CredentialsViewModel = viewModel()
+fun VerifyCredentials(
+    navHost: NavHostController = rememberNavController(),
+    appViewModel : AppViewModel = viewModel()
+){
     val headline by remember {mutableStateOf("Verify Credentials")}
     val headlineSubtext by remember { mutableStateOf(
         """Those were given to us by your Employer.
@@ -40,17 +48,9 @@ fun VerifyCredentials(){
             |please contact your Immediate supervisor.
         """.trimMargin()
     ) }
-    val note by remember { mutableStateOf("""
-        Please note!
-        Some of the fields can't be modifier
-        due to the employers policy.
-    """.trimIndent()) }
-    val firstName by remember{ mutableStateOf("First name") }
-    val lastName by remember{ mutableStateOf("Last name") }
-    val id by remember{ mutableStateOf("ID") }
-    val phoneNumber by remember{ mutableStateOf("054-1234567") }
-    val email by remember{ mutableStateOf("example@gmail.com") }
-    val hourlyPay by remember{ mutableDoubleStateOf(100.00) }
+    var password by remember { mutableStateOf("Password") }
+    var repeatPassword by remember { mutableStateOf("Repeat") }
+    val context = LocalContext.current
 
     Column(modifier = Modifier
         .fillMaxSize()
@@ -76,15 +76,6 @@ fun VerifyCredentials(){
             horizontalArrangement = Arrangement.Center
         ){
             Text(text = headlineSubtext,textAlign = TextAlign.Center)
-        }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 40.dp, bottom = 25.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ){
-            Text(text = note,textAlign = TextAlign.Center)
         }
         Row(modifier = Modifier
             .weight(3f)
@@ -116,7 +107,7 @@ fun VerifyCredentials(){
                             Spacer(modifier = Modifier.weight(0.25f))
                             TextField(modifier = Modifier.weight(1f),
                                 textStyle = TextStyle(textAlign = TextAlign.Center),
-                                value = firstName,
+                                value = appViewModel.user.firstName,
                                 onValueChange = {
                                 },
                                 enabled = false
@@ -124,7 +115,7 @@ fun VerifyCredentials(){
                             Spacer(modifier = Modifier.weight(0.5f))
                             TextField(modifier = Modifier.weight(1f),
                                 textStyle = TextStyle(textAlign = TextAlign.Center),
-                                value = lastName,
+                                value = appViewModel.user.lastName,
                                 onValueChange = {
                                 },
                                 enabled = false
@@ -137,7 +128,7 @@ fun VerifyCredentials(){
                             Spacer(modifier = Modifier.weight(0.25f))
                             TextField(modifier = Modifier.weight(1f),
                                 textStyle = TextStyle(textAlign = TextAlign.Center),
-                                value = id,
+                                value = appViewModel.user.id,
                                 onValueChange = {
                                 },
                                 enabled = false
@@ -145,7 +136,7 @@ fun VerifyCredentials(){
                             Spacer(modifier = Modifier.weight(0.5f))
                             TextField(modifier = Modifier.weight(1f),
                                 textStyle = TextStyle(textAlign = TextAlign.Center),
-                                value = phoneNumber,
+                                value = appViewModel.user.phoneNumber,
                                 onValueChange = {
                                 },
                                 enabled = false
@@ -161,10 +152,48 @@ fun VerifyCredentials(){
                             Spacer(modifier = Modifier.weight(0.25f))
                             TextField(modifier = Modifier.weight(1f),
                                 textStyle = TextStyle(textAlign = TextAlign.Center),
-                                value = email,
+                                value = appViewModel.user.email,
                                 onValueChange = {
                                 },
                                 enabled = false
+                            )
+                            Spacer(modifier = Modifier.weight(0.25f))
+                        }
+                        Row(modifier= Modifier
+                            .padding(top = 20.dp, bottom = 20.dp)
+                            .fillMaxWidth()
+                            , horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ){
+                            Spacer(modifier = Modifier.weight(0.25f))
+                            TextField(modifier = Modifier
+                                .focusable(true)
+                                .onFocusChanged {
+                                    if (it.isFocused && appViewModel.userPassword == "Password") {
+                                        appViewModel.userPassword = ""
+                                    }
+                                }.weight(1f),
+                                textStyle = TextStyle(textAlign = TextAlign.Center),
+                                value = appViewModel.userPassword,
+                                onValueChange = {
+                                    appViewModel.userPassword = it
+                                },
+                                enabled = true
+                            )
+                            Spacer(modifier = Modifier.weight(0.5f))
+                            TextField(modifier = Modifier
+                                .focusable(true)
+                                .onFocusChanged {
+                                    if (it.isFocused && appViewModel.userPasswordRepeated == "Repeat password") {
+                                        appViewModel.userPasswordRepeated = ""
+                                    }
+                                }.weight(1f),
+                                textStyle = TextStyle(textAlign = TextAlign.Center),
+                                value = appViewModel.userPasswordRepeated,
+                                onValueChange = {
+                                    appViewModel.userPasswordRepeated = it
+                                },
+                                enabled = true
                             )
                             Spacer(modifier = Modifier.weight(0.25f))
                         }
@@ -176,7 +205,7 @@ fun VerifyCredentials(){
                             Spacer(modifier = Modifier.weight(0.25f))
                             TextField(modifier = Modifier.weight(1f),
                                 textStyle = TextStyle(textAlign = TextAlign.Center),
-                                value = hourlyPay.toString(),
+                                value = appViewModel.user.hourlyPay.toString(),
                                 onValueChange = {
                                 },
                                 enabled = false
@@ -190,7 +219,21 @@ fun VerifyCredentials(){
                             , horizontalArrangement = Arrangement.Center,
                             verticalAlignment = Alignment.CenterVertically
                         ){
-                            Button(onClick = {}){
+                            Button(onClick = {
+                                if(appViewModel.checkIfPasswordMatch()){
+                                    appViewModel.isUserAlreadySignedUp { isSignedUp ->
+                                        if (isSignedUp){
+                                            Toast.makeText(context,"Already signed up",Toast.LENGTH_LONG).show()
+                                        }
+                                        else{
+                                            appViewModel.signUpUser(){
+                                                Toast.makeText(context,"Signed up successfully",Toast.LENGTH_LONG).show()
+                                                navHost.navigate("home_screen")
+                                            }
+                                        }
+                                    }
+                                }
+                            }){
                                 Text("Verify")
                             }
                         }
