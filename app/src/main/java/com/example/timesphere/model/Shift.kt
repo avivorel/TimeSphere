@@ -5,7 +5,6 @@ import com.google.firebase.Timestamp
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 
 data class Shift(    var shiftId: String = "",
                      var employeeId: String = "",
@@ -27,10 +26,9 @@ data class Shift(    var shiftId: String = "",
     fun getEndTime() : String{
         return if (endTime != Timestamp(0, 0)) utils.formatTimestampToTime(endTime) else ""
     }
-    fun editHours(original : String, new : String){
-        //preform edit and update DB
-    }
+
     fun updateTimestamp(newTime: String,isEnd:Boolean, onResult: (Boolean) -> Unit) {
+
         val (newHour, newMinute) = newTime.split(":").map { it.toInt() }
         val currentDateTime = LocalDateTime.ofInstant(
             Instant.ofEpochSecond(startTime.seconds),

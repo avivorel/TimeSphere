@@ -332,19 +332,18 @@ class FirebaseRepository {
     }
 
     fun getShiftsForMonth(
-        specifiedMonth: Int? = null, // Optional month (1-12); if null, use current month
+        specifiedMonth: Int? = null, // Optional month (0 = January, 11 = December). If null, use current month (0-based).
         onComplete: (List<Shift>) -> Unit
     ) {
         val calendar = Calendar.getInstance()
 
-        // Determine the month and year
-        val currentMonth =
-            specifiedMonth ?: (calendar.get(Calendar.MONTH) + 1) // Calendar.MONTH is 0-based
-        val currentYear = calendar.get(Calendar.YEAR)
+        // Determine the month and year (both 0-based for month)
+        val month = specifiedMonth ?: calendar.get(Calendar.MONTH)
+        val year = calendar.get(Calendar.YEAR)
 
-        // Calculate start and end timestamps for the month
-        calendar.set(Calendar.YEAR, currentYear)
-        calendar.set(Calendar.MONTH, currentMonth - 1) // 0-based month
+        // Calculate start of month
+        calendar.set(Calendar.YEAR, year)
+        calendar.set(Calendar.MONTH, month)      // 0-based month: 0 = January, 11 = December
         calendar.set(Calendar.DAY_OF_MONTH, 1)
         calendar.set(Calendar.HOUR_OF_DAY, 0)
         calendar.set(Calendar.MINUTE, 0)
@@ -352,12 +351,13 @@ class FirebaseRepository {
         calendar.set(Calendar.MILLISECOND, 0)
         val startOfMonth = Timestamp(calendar.time)
 
+        // Calculate end of month: move to first day of *next* month, then subtract 1 second
         calendar.add(Calendar.MONTH, 1)
         calendar.set(Calendar.DAY_OF_MONTH, 1)
         calendar.add(Calendar.SECOND, -1)
         val endOfMonth = Timestamp(calendar.time)
 
-        // Query Firestore for shifts within the date range and for the specified UID
+        // Query Firestore for shifts within the date range
         firestore.collection("shifts")
             .whereEqualTo("uid", auth.currentUser!!.uid)
             .whereGreaterThanOrEqualTo("timeStarted", startOfMonth)
@@ -365,6 +365,7 @@ class FirebaseRepository {
             .get()
             .addOnSuccessListener { querySnapshot ->
                 val shifts = Utils().processShiftDocuments(querySnapshot)
+                Log.d(TAG, "getShiftsForMonth: retrieved ${shifts.size} shifts")
                 onComplete(shifts)
             }
             .addOnFailureListener { exception ->
@@ -372,6 +373,7 @@ class FirebaseRepository {
                 onComplete(emptyList())
             }
     }
+
 
     // Helper function to process documents and map them to Shift objects
 
