@@ -50,7 +50,8 @@ class AppViewModel : ViewModel(){
             firstName = document.getString("firstName") ?: user.firstName,
             lastName = document.getString("lastName") ?: user.lastName,
             hourlyPay = document.getDouble("hourlySalary") ?: user.hourlyPay,
-            phoneNumber = document.getString("phoneNumber") ?: user.phoneNumber
+            phoneNumber = document.getString("phoneNumber") ?: user.phoneNumber,
+            userImage = document.getString("userImage") ?: user.userImage
         )
     }
     fun updateUserAll(employeeData: Any) {

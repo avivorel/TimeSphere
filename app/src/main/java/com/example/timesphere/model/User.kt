@@ -13,6 +13,7 @@ data class User(
     var employerId :String = "Employer ID",
     var id : String = "Israeli issued ID",
     var phoneNumber : String = "054-1234567",
+    var userImage: String? = null,
     var inShift : Boolean  =false,
     var shiftStarted : Timestamp = Timestamp(0,0)
 )

@@ -236,6 +236,7 @@ class FirebaseRepository {
                         employerId = data?.get("employerId") as? String ?: "Employer ID",
                         id = data?.get("employeeId") as? String ?: "Israeli issued ID",
                         phoneNumber = data?.get("phoneNumber") as? String ?: "054-1234567",
+                        userImage = data?.get("userImage") as? String ?: null,
                         inShift = data?.get("inShift") as? Boolean ?: false,
                         shiftStarted = data?.get("shiftStarted") as? Timestamp ?: Timestamp(0, 0)
                     )

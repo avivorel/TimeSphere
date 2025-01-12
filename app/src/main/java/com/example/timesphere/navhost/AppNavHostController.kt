@@ -93,7 +93,7 @@ fun AppNavHostController(
                 HomeScreen(appViewModel = appViewModel,navHostController = navHostController)
             }
             composable(route = NavDestination.Profile.route) {
-                ProfileScreen()
+                ProfileScreen(appViewModel = appViewModel,navHost = navHostController)
             }
             composable(route = NavDestination.Report.route) {
                 ReportScreen(appViewModel = appViewModel)

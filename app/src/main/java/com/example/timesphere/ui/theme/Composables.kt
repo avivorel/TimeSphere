@@ -1,12 +1,9 @@
 package com.example.timesphere.ui.theme
 
-import androidx.compose.foundation.LocalIndication
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.PressInteraction
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -23,21 +19,20 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.delay
+import coil.compose.AsyncImage
+import coil.compose.rememberAsyncImagePainter
 
 
 @Composable
@@ -127,5 +122,49 @@ fun MonthSlider(
                 contentDescription = "Next Month"
             )
         }
+    }
+}
+
+
+
+@Composable
+fun RoundedImage(
+    modifier: Modifier = Modifier,
+    imageUrl: String?, // URL to the user image
+    contentDescription: String? = null,
+    cornerRadius: Int = 16, // Default corner radius in dp
+    placeholderColor: Color = Color.Gray // Default placeholder color
+) {
+    Box(
+        modifier = modifier
+            .size(120.dp) // Adjust the size as needed
+            .clip(RoundedCornerShape(cornerRadius.dp)) // Clip with rounded corners
+    ) {
+        // Use Coil's AsyncImage for loading images from a URL
+        AsyncImage(
+            model = imageUrl,
+            contentDescription = contentDescription,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.matchParentSize(),
+            placeholder = rememberAsyncImagePainter(placeholderColor) // Optional placeholder
+        )
+    }
+}
+
+
+@Preview
+@Composable
+fun DebugRoundedImagePreview() {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        // Hardcoded URL for debugging
+        RoundedImage(
+            imageUrl = "https://placekitten.com/200/200", // Example placeholder URL
+            contentDescription = "Debugging Profile Picture",
+            cornerRadius = 16
+        )
     }
 }
