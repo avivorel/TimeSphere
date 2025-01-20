@@ -93,4 +93,23 @@ class Utils{
         }
         return String.format("%01d:%02d", hours, minutes)
     }
+
+    fun getHoursInShift(shift: Shift): Double {
+        if (shift.hoursWorked != "") {
+            // Extract hours and minutes from the "hoursWorked" string
+            val (hours, minutes) = shift.hoursWorked.split(":").map { it.toIntOrNull() ?: 0 }
+
+            // Convert total time to a decimal hour format
+            val totalHours = hours + (minutes / 60.0)
+
+            // Calculate the money made
+            return totalHours
+        }
+        return 0.00
+    }
+
+    fun getDaysOff(hours: Double): Int {
+        return (hours / 30).toInt()
+    }
+
 }

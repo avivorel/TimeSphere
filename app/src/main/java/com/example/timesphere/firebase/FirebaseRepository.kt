@@ -11,7 +11,11 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 import com.google.firebase.functions.FirebaseFunctions
+import com.google.firebase.ktx.Firebase
 import java.util.Calendar
+//import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
+
 
 
 val TAG = "AuthRepository"
@@ -374,6 +378,47 @@ class FirebaseRepository {
                 onComplete(emptyList())
             }
     }
+
+    fun updateUserProfileImageUrl(newImageUrl: String, onResult: (Boolean) -> Unit) {
+        val uid = auth.currentUser?.uid ?: return onResult(false) // Get the current user's UID
+
+        // Update the Firestore document for the user
+        firestore.collection("employees")
+            .document(uid)
+            .update("userImage", newImageUrl)
+            .addOnSuccessListener {
+                Log.d(TAG, "User image URL updated successfully in Firestore")
+                onResult(true) // Notify success
+            }
+            .addOnFailureListener { exception ->
+                Log.e(TAG, "Failed to update user image URL in Firestore: ${exception.message}")
+                onResult(false) // Notify failure
+            }
+    }
+
+
+//    fun uploadProfileImage(imageUri: android.net.Uri, onResult: (String?, Boolean) -> Unit) {
+//        val uid = auth.currentUser?.uid ?: return onResult(null, false)
+//        val storageRef = firestore.storage.reference.child("profile_pictures/$uid.jpg")
+//
+//        storageRef.putFile(imageUri)
+//            .addOnSuccessListener {
+//                storageRef.downloadUrl.addOnSuccessListener { uri ->
+//                    // Return the URL of the uploaded image
+//                    onResult(uri.toString(), true)
+//                }.addOnFailureListener { exception ->
+//                    Log.e(TAG, "Failed to retrieve download URL: ${exception.message}")
+//                    onResult(null, false)
+//                }
+//            }
+//            .addOnFailureListener { exception ->
+//                Log.e(TAG, "Failed to upload image: ${exception.message}")
+//                onResult(null, false)
+//            }
+//    }
+
+
+
 
 
     // Helper function to process documents and map them to Shift objects

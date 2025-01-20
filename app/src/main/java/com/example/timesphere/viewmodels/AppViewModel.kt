@@ -126,6 +126,31 @@ class AppViewModel : ViewModel(){
         }
     }
 
+//    fun updateUserImage(newImageUrl: String) {
+//        user = user.copy(userImage = newImageUrl) // Update the local state
+//    }
+fun updateUserImage(newImageUrl: String) {
+    val uid = user.uid // The unique ID of the current user
+    if (uid.isEmpty()) {
+        Log.e(TAG, "Failed to update image: User ID is empty")
+        return
+    }
+
+    // Update the Firestore document for the user
+    firebaseRepository.updateUserProfileImageUrl(newImageUrl) { isSuccessful ->
+        if (isSuccessful) {
+            // Update the local state only after Firestore is successfully updated
+            user = user.copy(userImage = newImageUrl)
+            Log.d(TAG, "User image updated successfully in Firestore")
+        } else {
+            Log.e(TAG, "Failed to update user image in Firestore")
+        }
+    }
+}
+
+
+
+
 
 
 }

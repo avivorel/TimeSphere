@@ -80,4 +80,8 @@ dependencies {
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.android.gms:play-services-auth:21.2.0")
     implementation ("io.coil-kt:coil-compose:2.2.2")
+    implementation ("com.google.firebase:firebase-firestore-ktx:24.7.1")
+    implementation ("com.google.firebase:firebase-storage-ktx:23.0.0")
+    implementation ("androidx.activity:activity-compose:1.7.2")
+
 }
