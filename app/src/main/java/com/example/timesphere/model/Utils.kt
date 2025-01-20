@@ -6,6 +6,13 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 
+import android.content.Context
+import android.net.Uri
+import android.widget.Toast
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
+import java.util.UUID
+
 class Utils{
     fun formatTimestampToDayAndDate(startTime: Timestamp): Pair<String, String> {
         // Convert Timestamp to Date
@@ -110,6 +117,31 @@ class Utils{
 
     fun getDaysOff(hours: Double): Int {
         return (hours / 30).toInt()
+    }
+
+    fun uploadImageToFirebase(
+        uri: Uri,
+        context: Context,
+        onSuccess: (String) -> Unit // Callback with the uploaded image URL
+    ) {
+        val storageReference: StorageReference = FirebaseStorage.getInstance().reference
+        val imageRef = storageReference.child("profile_pictures/${UUID.randomUUID()}.jpg")
+
+        imageRef.putFile(uri)
+            .addOnSuccessListener { taskSnapshot ->
+                imageRef.downloadUrl.addOnSuccessListener { downloadUri ->
+                    onSuccess(downloadUri.toString()) // Return the URL of the uploaded image
+                }.addOnFailureListener {
+                    Toast.makeText(context, "Failed to get download URL", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .addOnFailureListener {
+                Toast.makeText(context, "Upload failed: ${it.message}", Toast.LENGTH_SHORT).show()
+            }
+            .addOnProgressListener { snapshot ->
+                val progress = (100.0 * snapshot.bytesTransferred / snapshot.totalByteCount)
+                Toast.makeText(context, "Upload is $progress% done", Toast.LENGTH_SHORT).show()
+            }
     }
 
 }

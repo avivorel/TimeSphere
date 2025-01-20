@@ -20,6 +20,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -42,8 +43,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
+import com.example.timesphere.model.Utils
 
-
+val utils = Utils()
 @Composable
 fun RoundedCornerCardTop(
     content : @Composable () -> Unit,
@@ -134,68 +136,6 @@ fun MonthSlider(
     }
 }
 
-
-
-//@Composable
-//fun RoundedImage(
-//    modifier: Modifier = Modifier,
-//    imageUrl: String?, // URL to the user image
-//    contentDescription: String? = null,
-//    cornerRadius: Int = 16, // Default corner radius in dp
-//    placeholderColor: Color = Color.Gray // Default placeholder color
-//) {
-//    Box(
-//        modifier = modifier
-//            .size(120.dp) // Adjust the size as needed
-//            .clip(RoundedCornerShape(cornerRadius.dp)) // Clip with rounded corners
-//    ) {
-//        // Use Coil's AsyncImage for loading images from a URL
-//        AsyncImage(
-//            model = imageUrl,
-//            contentDescription = contentDescription,
-//            contentScale = ContentScale.Crop,
-//            modifier = Modifier.matchParentSize(),
-//            placeholder = rememberAsyncImagePainter(placeholderColor) // Optional placeholder
-//        )
-//    }
-//}
-
-//@Composable
-//fun RoundedImageWithLocalUpdate(
-//    modifier: Modifier = Modifier,
-//    imageUrl: String?,
-//    contentDescription: String? = null,
-//    cornerRadius: Int = 16,
-//    placeholderColor: Color = Color.Gray,
-//    onImageSelected: (android.net.Uri) -> Unit // Callback when a new image is selected
-//) {
-//    val imagePickerLauncher = rememberLauncherForActivityResult(
-//        contract = ActivityResultContracts.GetContent()
-//    ) { uri ->
-//        if (uri != null) {
-//            onImageSelected(uri) // Pass the selected image URI to the callback
-//        }
-//    }
-//
-//    Box(
-//        modifier = modifier
-//            .size(120.dp)
-//            .clip(RoundedCornerShape(cornerRadius.dp))
-//            .clickable {
-//                // Open the image picker when the image is clicked
-//                imagePickerLauncher.launch("image/*")
-//            }
-//    ) {
-//        AsyncImage(
-//            model = imageUrl,
-//            contentDescription = contentDescription,
-//            contentScale = ContentScale.Crop,
-//            modifier = Modifier.matchParentSize(),
-//            placeholder = rememberAsyncImagePainter(placeholderColor)
-//        )
-//    }
-//}
-
 @Composable
 fun RoundedImageWithLocalUpdate(
     modifier: Modifier = Modifier,
@@ -203,10 +143,11 @@ fun RoundedImageWithLocalUpdate(
     contentDescription: String? = null,
     cornerRadius: Int = 16,
     placeholderColor: Color = Color.Gray,
-    onImageSelected: (android.net.Uri) -> Unit // Callback when a new image is selected
+    onImageSelected: (String) -> Unit // Callback when a new image URL is available
 ) {
     var showConfirmationDialog by remember { mutableStateOf(false) }
     var croppedImageUri by remember { mutableStateOf<android.net.Uri?>(null) }
+    var isUploading by remember { mutableStateOf(false) } // Track upload state
 
     val context = LocalContext.current
     val cropImageLauncher = rememberLauncherForActivityResult(
@@ -215,7 +156,11 @@ fun RoundedImageWithLocalUpdate(
         if (result.resultCode == android.app.Activity.RESULT_OK) {
             result.data?.data?.let { uri ->
                 croppedImageUri = uri
-                onImageSelected(uri) // Pass cropped image URI to callback
+                // Trigger upload when image is cropped
+                utils.uploadImageToFirebase(uri, context) { uploadedImageUrl ->
+                    isUploading = false
+                    onImageSelected(uploadedImageUrl) // Pass URL to the callback
+                }
             }
         }
     }
@@ -254,6 +199,17 @@ fun RoundedImageWithLocalUpdate(
             modifier = Modifier.matchParentSize(),
             placeholder = rememberAsyncImagePainter(placeholderColor)
         )
+
+        if (isUploading) {
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .align(Alignment.Center),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = Color.White)
+            }
+        }
     }
 
     if (showConfirmationDialog) {
@@ -277,5 +233,3 @@ fun RoundedImageWithLocalUpdate(
         )
     }
 }
-
-
