@@ -1,5 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- Main app theme -->
     <style name="Theme.TimeSphere" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <!-- Splash screen theme -->
+    <style name="Theme.SplashScreen" parent="android:Theme.Material.Light.NoActionBar">
+        <!-- Background color for splash screen -->
+        <item name="android:windowBackground">@color/white</item>
+
+<!--        &lt;!&ndash; Optional: Remove app title bar &ndash;&gt;-->
+<!--        <item name="windowNoTitle">true</item>-->
+<!--        <item name="windowActionBar">false</item>-->
+    </style>
+
 </resources>

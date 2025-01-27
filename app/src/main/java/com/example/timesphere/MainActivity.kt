@@ -19,10 +19,12 @@ import com.example.timesphere.viewmodels.AppViewModel
 import com.google.firebase.FirebaseApp
 
 class MainActivity : ComponentActivity() {
-    lateinit var appViewModel: AppViewModel
-    lateinit var authRepo : FirebaseRepository
-    var isFirstTime = true
 
+    private lateinit var appViewModel: AppViewModel
+    private lateinit var authRepo: FirebaseRepository
+    private var isFirstTime = true
+
+    // Permission result launcher
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
             // Handle granted or denied permissions
@@ -39,38 +41,49 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Initialize Firebase and view models
         FirebaseApp.initializeApp(this)
         appViewModel = AppViewModel()
         authRepo = FirebaseRepository()
+
+        // Enable edge-to-edge UI
         enableEdgeToEdge()
+
+        // Check for permissions
         checkPermissions()
+
+        // Determine user status
         authRepo.checkUserStatus { isUser ->
             isFirstTime = !isUser
+            runApp() // Run the app only after determining user status
         }
-            setContent {
-                TimeSphereTheme {
-                    val navController = rememberNavController()
-                    if (isFirstTime) {
-                        OnboardingNavControllerHost(
-                            navController = navController,
-                            appViewModel = appViewModel
-                        )
-                    } else {
-                        setContent {
-                            appViewModel.fetchUser()
-                            AppNavHostController(appViewModel = appViewModel)
-                        }
-                    }
+    }
+
+    private fun runApp() {
+        setContent {
+            TimeSphereTheme {
+                val navController = rememberNavController()
+                if (isFirstTime) {
+                    // Onboarding navigation
+                    OnboardingNavControllerHost(
+                        navController = navController,
+                        appViewModel = appViewModel
+                    )
+                } else {
+                    // App navigation
+                    appViewModel.fetchUser() // Load user data
+                    AppNavHostController(appViewModel = appViewModel)
+                }
             }
         }
     }
 
-    fun checkPermissions(){
+    private fun checkPermissions() {
         val requiredPermissions = listOf(
             android.Manifest.permission.ACCESS_FINE_LOCATION,
             android.Manifest.permission.READ_EXTERNAL_STORAGE,
             android.Manifest.permission.READ_MEDIA_IMAGES,
-            android.Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED,
             android.Manifest.permission.ACCESS_BACKGROUND_LOCATION
         )
 
@@ -85,13 +98,8 @@ class MainActivity : ComponentActivity() {
             Toast.makeText(this, "All permissions already granted", Toast.LENGTH_SHORT).show()
         }
     }
-
 }
-
-
-
 
 @Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
-}
+fun GreetingPreview() {}
