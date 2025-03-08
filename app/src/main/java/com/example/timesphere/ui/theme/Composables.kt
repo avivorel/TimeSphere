@@ -44,6 +44,11 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import com.example.timesphere.model.Utils
+import android.Manifest
+import android.os.Build
+import androidx.compose.foundation.background
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.graphics.Brush
 
 val utils = Utils()
 @Composable
@@ -148,6 +153,8 @@ fun RoundedImageWithLocalUpdate(
     var showConfirmationDialog by remember { mutableStateOf(false) }
     var croppedImageUri by remember { mutableStateOf<android.net.Uri?>(null) }
     var isUploading by remember { mutableStateOf(false) } // Track upload state
+
+
 
     val context = LocalContext.current
     val cropImageLauncher = rememberLauncherForActivityResult(

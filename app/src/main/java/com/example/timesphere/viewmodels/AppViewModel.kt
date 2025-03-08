@@ -13,6 +13,13 @@ import com.google.firebase.Timestamp
 import com.google.firebase.firestore.QuerySnapshot
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.math.sqrt
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import android.content.Context
 
 val TAG = "AppViewModel"
 
@@ -26,7 +33,89 @@ class AppViewModel : ViewModel(){
     var clockText by mutableStateOf("Clock In")
     val utils = Utils()
 
+    // Job location coordinates (example: New York City)
+    private val JOB_LATITUDE = 32.810557 // Replace with your job location
+    private val JOB_LONGITUDE = 34.984403 // Replace with your job location
+    private val JOB_RADIUS_METERS = 1500.0 // 100 meters radius
 
+    // Current user location
+    var userLatitude by mutableStateOf(0.0)
+    var userLongitude by mutableStateOf(0.0)
+    var isLocationPermissionGranted by mutableStateOf(false)
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+
+    // Check if user is within radius
+    fun isWithinJobRadius(): Boolean {
+        if (userLatitude == 0.0 || userLongitude == 0.0) return false
+        val distance = calculateDistance(userLatitude, userLongitude, JOB_LATITUDE, JOB_LONGITUDE)
+        return distance <= JOB_RADIUS_METERS
+    }
+
+    // Haversine formula to calculate distance between two points (in meters)
+    private fun calculateDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
+        val R = 6371000.0 // Earth radius in meters
+        val lat1Rad = Math.toRadians(lat1)
+        val lat2Rad = Math.toRadians(lat2)
+        val deltaLat = Math.toRadians(lat2 - lat1)
+        val deltaLon = Math.toRadians(lon2 - lon1)
+
+        val a = sin(deltaLat / 2) * sin(deltaLat / 2) +
+                cos(lat1Rad) * cos(lat2Rad) * sin(deltaLon / 2) * sin(deltaLon / 2)
+        val c = 2 * atan2(sqrt(a), sqrt(1 - a))
+        return R * c
+    }
+
+    fun initializeLocationClient(context: Context) {
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
+    }
+
+    fun fetchUserLocation(context: Context, onLocationFetched: (Boolean) -> Unit) {
+        if (!isLocationPermissionGranted) {
+            onLocationFetched(false)
+            return
+        }
+
+        try {
+            fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+                if (location != null) {
+                    userLatitude = location.latitude
+                    userLongitude = location.longitude
+                    onLocationFetched(true)
+                } else {
+                    onLocationFetched(false)
+                }
+            }.addOnFailureListener {
+                onLocationFetched(false)
+            }
+        } catch (e: SecurityException) {
+            onLocationFetched(false)
+        }
+    }
+
+    fun clockInOrOut(context: Context, onResult: (Boolean) -> Unit) {
+        fetchUserLocation(context) { locationFetched ->
+            if (!locationFetched) {
+                onResult(false)
+                return@fetchUserLocation
+            }
+
+            if (isWithinJobRadius()) {
+                firebaseRepository.updateShift(user.inShift) { isSuccessful, isClockedIn ->
+                    user.inShift = isClockedIn
+                    if (isClockedIn) {
+                        clockText = utils.calculateShiftDuration(user.shiftStarted)
+                        user.shiftStarted = Timestamp.now()
+                    } else {
+                        clockText = "Clock In"
+                        user.shiftStarted = Timestamp(0, 0)
+                    }
+                    onResult(isSuccessful)
+                }
+            } else {
+                onResult(false) // User is not within radius
+            }
+        }
+    }
     init {
         Log.d("AppViewModel", "init")
     }
@@ -111,20 +200,20 @@ class AppViewModel : ViewModel(){
         }
     }
 
-    fun clockInOrOut(onResult: (Boolean) -> Unit){
-        firebaseRepository.updateShift(user.inShift){ isSuccessful, isClockedIn ->
-            user.inShift = isClockedIn
-            if(isClockedIn){
-                clockText = utils.calculateShiftDuration(user.shiftStarted)
-                user.shiftStarted = Timestamp.now()
-            }
-            else{
-                clockText = "Clock In"
-                user.shiftStarted = Timestamp(0,0)
-            }
-            onResult(isSuccessful)
-        }
-    }
+//    fun clockInOrOut(onResult: (Boolean) -> Unit){
+//        firebaseRepository.updateShift(user.inShift){ isSuccessful, isClockedIn ->
+//            user.inShift = isClockedIn
+//            if(isClockedIn){
+//                clockText = utils.calculateShiftDuration(user.shiftStarted)
+//                user.shiftStarted = Timestamp.now()
+//            }
+//            else{
+//                clockText = "Clock In"
+//                user.shiftStarted = Timestamp(0,0)
+//            }
+//            onResult(isSuccessful)
+//        }
+//    }
 
 //    fun updateUserImage(newImageUrl: String) {
 //        user = user.copy(userImage = newImageUrl) // Update the local state

@@ -14,6 +14,7 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.compose.rememberNavController
 import com.example.timesphere.navhost.AppNavHostController
 import com.example.timesphere.navhost.OnboardingNavControllerHost
+import com.example.timesphere.ui.theme.BackgroundContainer
 import com.example.timesphere.ui.theme.TimeSphereTheme
 import com.example.timesphere.viewmodels.AppViewModel
 import com.google.firebase.FirebaseApp
@@ -24,10 +25,8 @@ class MainActivity : ComponentActivity() {
     private lateinit var authRepo: FirebaseRepository
     private var isFirstTime = true
 
-    // Permission result launcher
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
-            // Handle granted or denied permissions
             permissions.entries.forEach {
                 val permissionName = it.key
                 val isGranted = it.value
@@ -42,38 +41,33 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Initialize Firebase and view models
         FirebaseApp.initializeApp(this)
         appViewModel = AppViewModel()
         authRepo = FirebaseRepository()
 
-        // Enable edge-to-edge UI
         enableEdgeToEdge()
-
-        // Check for permissions
         checkPermissions()
 
-        // Determine user status
         authRepo.checkUserStatus { isUser ->
             isFirstTime = !isUser
-            runApp() // Run the app only after determining user status
+            runApp()
         }
     }
 
     private fun runApp() {
         setContent {
             TimeSphereTheme {
-                val navController = rememberNavController()
-                if (isFirstTime) {
-                    // Onboarding navigation
-                    OnboardingNavControllerHost(
-                        navController = navController,
-                        appViewModel = appViewModel
-                    )
-                } else {
-                    // App navigation
-                    appViewModel.fetchUser() // Load user data
-                    AppNavHostController(appViewModel = appViewModel)
+                BackgroundContainer { // Apply the constant background
+                    val navController = rememberNavController()
+                    if (isFirstTime) {
+                        OnboardingNavControllerHost(
+                            navController = navController,
+                            appViewModel = appViewModel
+                        )
+                    } else {
+                        appViewModel.fetchUser()
+                        AppNavHostController(appViewModel = appViewModel)
+                    }
                 }
             }
         }
@@ -92,7 +86,6 @@ class MainActivity : ComponentActivity() {
         }
 
         if (deniedPermissions.isNotEmpty()) {
-            // Show rationale if needed, then request permissions
             requestPermissionLauncher.launch(deniedPermissions.toTypedArray())
         } else {
             Toast.makeText(this, "All permissions already granted", Toast.LENGTH_SHORT).show()

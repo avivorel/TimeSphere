@@ -83,5 +83,6 @@ dependencies {
     implementation ("com.google.firebase:firebase-firestore-ktx:24.7.1")
     implementation ("com.google.firebase:firebase-storage-ktx:20.2.1")
     implementation ("androidx.activity:activity-compose:1.7.2")
+    implementation ("com.google.android.gms:play-services-location:21.0.1")
 
 }

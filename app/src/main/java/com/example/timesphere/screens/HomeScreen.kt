@@ -25,6 +25,14 @@ import com.example.timesphere.navhost.OnboardingNavControllerHost
 import com.example.timesphere.ui.theme.ClockInButton
 import com.example.timesphere.ui.theme.RoundedCornerCardTop
 import com.example.timesphere.viewmodels.AppViewModel
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
+import android.Manifest
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
 
 @Composable
 fun HomeScreen(
@@ -32,6 +40,23 @@ fun HomeScreen(
     navHostController: NavHostController = rememberNavController()
 ) {
     val context = LocalContext.current
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        appViewModel.isLocationPermissionGranted = isGranted
+        if (isGranted) {
+            appViewModel.initializeLocationClient(context)
+            appViewModel.fetchUserLocation(context) {}
+        }
+    }
+
+    // Request location permission on startup
+    LaunchedEffect(Unit) {
+        if (!appViewModel.isLocationPermissionGranted) {
+            permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+        }
+        appViewModel.trackShift()
+    }
 
     LaunchedEffect(Unit) {
         appViewModel.trackShift()
@@ -73,12 +98,12 @@ fun HomeScreen(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             ClockInButton(text = appViewModel.clockText) {
-                                appViewModel.clockInOrOut(){ isSuccessful->
+                                appViewModel.clockInOrOut(context){ isSuccessful->
                                     if(isSuccessful){
                                         Toast.makeText(context,"Successful",Toast.LENGTH_LONG).show()
                                     }
                                     else{
-                                        Toast.makeText(context,"Has error clocking in",Toast.LENGTH_LONG).show()
+                                        Toast.makeText(context,"Error not near job location",Toast.LENGTH_LONG).show()
                                     }
                                 }
                             }
