@@ -1,8 +1,8 @@
-package com.example.timesphere.screens
+    package com.example.timesphere.screens
 
-import androidx.compose.runtime.Composable
+    import androidx.compose.runtime.Composable
 
-@Composable
-fun SettingsScreen(){
+    @Composable
+    fun SettingsScreen(){
 
-}
+    }

@@ -36,7 +36,7 @@ class AppViewModel : ViewModel(){
     // Job location coordinates (example: New York City)
     private val JOB_LATITUDE = 32.810557 // Replace with your job location
     private val JOB_LONGITUDE = 34.984403 // Replace with your job location
-    private val JOB_RADIUS_METERS = 1500.0 // 100 meters radius
+    private val JOB_RADIUS_METERS = 150000.0 // 100 meters radius
 
     // Current user location
     var userLatitude by mutableStateOf(0.0)

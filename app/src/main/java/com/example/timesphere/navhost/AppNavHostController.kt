@@ -33,6 +33,9 @@ import com.example.timesphere.screens.SettingsScreen
 import com.example.timesphere.screens.VerifyCredentials
 import com.example.timesphere.viewmodels.AppViewModel
 
+import androidx.compose.material3.MaterialTheme
+import com.example.timesphere.ui.theme.BackgroundContainer
+
 // Navigation destinations
 sealed class NavDestination(val title: String, val route: String, val icon: ImageVector) {
     object Home : NavDestination("Home", "home_screen", Icons.Filled.Home)
@@ -66,27 +69,20 @@ fun AppNavHostController(
         Scaffold(
             bottomBar = {
                 NavigationBar(
-                    // Optional: Ensure navigation bar has a semi-transparent background
-                    // to let the gradient show through
-                    modifier = Modifier.background(Color.Black.copy(alpha = 0.2f))
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    contentColor = MaterialTheme.colorScheme.onSurface
                 ) {
                     val currentBackStackEntry by navHostController.currentBackStackEntryAsState()
                     val currentRoute = currentBackStackEntry?.destination?.route
 
                     items.forEach { destination ->
                         NavigationBarItem(
-                            icon = {
-                                Icon(
-                                    destination.icon,
-                                    contentDescription = destination.title
-                                )
-                            },
-                            label = { Text(destination.title) },
+                            icon = { Icon(destination.icon, contentDescription = destination.title) },
+                            label = { Text(destination.title, style = MaterialTheme.typography.labelLarge) },
                             selected = currentRoute == destination.route,
                             onClick = {
                                 if (currentRoute != destination.route) {
                                     navHostController.navigate(destination.route) {
-                                        // Prevent multiple instances of same screen
                                         popUpTo(navHostController.graph.startDestinationId) {
                                             saveState = true
                                         }
@@ -122,26 +118,5 @@ fun AppNavHostController(
                 }
             }
         }
-    }
-}
-
-@Composable
-fun BackgroundContainer(
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit
-) {
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(
-                        Color(0xFF6200EE), // Purple
-                        Color(0xFF03DAC5)  // Teal
-                    )
-                )
-            )
-    ) {
-        content()
     }
 }

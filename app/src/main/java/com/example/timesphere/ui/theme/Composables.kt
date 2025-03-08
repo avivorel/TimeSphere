@@ -42,52 +42,67 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.*
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.example.timesphere.model.Utils
 import android.Manifest
 import android.os.Build
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.graphics.Brush
+import com.example.timesphere.R
 
 val utils = Utils()
+
+
 @Composable
 fun RoundedCornerCardTop(
-    content : @Composable () -> Unit,
+    content: @Composable () -> Unit,
     modifier: Modifier,
     onClick: () -> Unit,
-    onDismiss : () -> Unit
-    ){
-    Card(modifier = modifier,
+    onDismiss: () -> Unit
+) {
+    Card(
+        modifier = modifier,
         shape = RoundedCornerShape(topStart = 40.dp, topEnd = 40.dp),
-        onClick = { onClick() },
-    ){
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.onSurface
+        ),
+        onClick = { onClick() }
+    ) {
         content()
     }
 }
 
 @Composable
-fun ClockInButton(text :String,onClick: () -> Unit) {
+fun ClockInButton(text: String, onClick: () -> Unit) {
     Button(
         onClick = { onClick() },
         modifier = Modifier
-            .size(100.dp) // Circular size
-            .clip(CircleShape), // Ensures the button is circular
+            .size(100.dp)
+            .clip(CircleShape),
         colors = ButtonDefaults.buttonColors(
-            containerColor = Color.Blue,
-            contentColor = Color.White
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
         ),
-        contentPadding = PaddingValues(0.dp), // Ensure text is centered
-        elevation = ButtonDefaults.elevatedButtonElevation() // Optional: Adds a shadow effect
+        contentPadding = PaddingValues(0.dp),
+        elevation = ButtonDefaults.elevatedButtonElevation()
     ) {
-        Text(text)
+        Text(text, style = MaterialTheme.typography.labelLarge)
     }
 }
 
-
 @Composable
 fun MonthSlider(
-    modifier : Modifier = Modifier, // 0-based: 0 = January, 11 = December
+    modifier: Modifier = Modifier,
     startMonthIndex: Int = 0,
     onClickPrev: () -> Unit,
     onClickNext: () -> Unit
@@ -97,45 +112,31 @@ fun MonthSlider(
         "July", "August", "September", "October", "November", "December"
     )
 
-    // Coerce the starting index into [0..11]
-    var currentMonthIndex by remember {
-        mutableIntStateOf(startMonthIndex.coerceIn(0, months.size - 1))
-    }
+    var currentMonthIndex by remember { mutableIntStateOf(startMonthIndex.coerceIn(0, months.size - 1)) }
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
         modifier = modifier
     ) {
-        IconButton(
-            onClick = {
-                onClickPrev()
-                // Shift + months.size to avoid negative remainder
-                currentMonthIndex = (currentMonthIndex - 1 + months.size) % months.size
-            }
-        ) {
+        IconButton(onClick = { onClickPrev(); currentMonthIndex = (currentMonthIndex - 1 + months.size) % months.size }) {
             Icon(
                 painter = painterResource(id = android.R.drawable.ic_media_previous),
-                contentDescription = "Previous Month"
+                contentDescription = "Previous Month",
+                tint = MaterialTheme.colorScheme.onSurface
             )
         }
-
         Text(
             text = months[currentMonthIndex],
             style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.padding(horizontal = 16.dp)
         )
-
-        IconButton(
-            onClick = {
-                onClickNext()
-                // For incrementing, (x + 1) % months.size stays >= 0 so it's okay
-                currentMonthIndex = (currentMonthIndex + 1) % months.size
-            }
-        ) {
+        IconButton(onClick = { onClickNext(); currentMonthIndex = (currentMonthIndex + 1) % months.size }) {
             Icon(
                 painter = painterResource(id = android.R.drawable.ic_media_next),
-                contentDescription = "Next Month"
+                contentDescription = "Next Month",
+                tint = MaterialTheme.colorScheme.onSurface
             )
         }
     }
@@ -147,14 +148,11 @@ fun RoundedImageWithLocalUpdate(
     imageUrl: String?,
     contentDescription: String? = null,
     cornerRadius: Int = 16,
-    placeholderColor: Color = Color.Gray,
-    onImageSelected: (String) -> Unit // Callback when a new image URL is available
+    onImageSelected: (String) -> Unit
 ) {
     var showConfirmationDialog by remember { mutableStateOf(false) }
     var croppedImageUri by remember { mutableStateOf<android.net.Uri?>(null) }
-    var isUploading by remember { mutableStateOf(false) } // Track upload state
-
-
+    var isUploading by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
     val cropImageLauncher = rememberLauncherForActivityResult(
@@ -163,10 +161,9 @@ fun RoundedImageWithLocalUpdate(
         if (result.resultCode == android.app.Activity.RESULT_OK) {
             result.data?.data?.let { uri ->
                 croppedImageUri = uri
-                // Trigger upload when image is cropped
                 utils.uploadImageToFirebase(uri, context) { uploadedImageUrl ->
                     isUploading = false
-                    onImageSelected(uploadedImageUrl) // Pass URL to the callback
+                    onImageSelected(uploadedImageUrl)
                 }
             }
         }
@@ -176,7 +173,6 @@ fun RoundedImageWithLocalUpdate(
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
         if (uri != null) {
-            // Launch crop activity after selecting the image
             val cropIntent = Intent("com.android.camera.action.CROP").apply {
                 setDataAndType(uri, "image/*")
                 putExtra("crop", "true")
@@ -195,18 +191,15 @@ fun RoundedImageWithLocalUpdate(
         modifier = modifier
             .size(120.dp)
             .clip(RoundedCornerShape(cornerRadius.dp))
-            .clickable {
-                showConfirmationDialog = true // Show the confirmation dialog on click
-            }
+            .clickable { showConfirmationDialog = true }
     ) {
         AsyncImage(
             model = croppedImageUri?.toString() ?: imageUrl,
             contentDescription = contentDescription,
             contentScale = ContentScale.Crop,
             modifier = Modifier.matchParentSize(),
-            placeholder = rememberAsyncImagePainter(placeholderColor)
+            placeholder = rememberAsyncImagePainter(MaterialTheme.colorScheme.surface)
         )
-
         if (isUploading) {
             Box(
                 modifier = Modifier
@@ -214,7 +207,7 @@ fun RoundedImageWithLocalUpdate(
                     .align(Alignment.Center),
                 contentAlignment = Alignment.Center
             ) {
-                CircularProgressIndicator(color = Color.White)
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
             }
         }
     }
@@ -222,21 +215,41 @@ fun RoundedImageWithLocalUpdate(
     if (showConfirmationDialog) {
         AlertDialog(
             onDismissRequest = { showConfirmationDialog = false },
-            title = { Text("Change Image") },
-            text = { Text("Do you want to change the image?") },
+            title = { Text("Change Image", style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.onSurface) },
+            text = { Text("Do you want to change the image?", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurface) },
             confirmButton = {
                 TextButton(onClick = {
                     showConfirmationDialog = false
-                    imagePickerLauncher.launch("image/*") // Launch image picker
+                    imagePickerLauncher.launch("image/*")
                 }) {
-                    Text("Yes")
+                    Text("Yes", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showConfirmationDialog = false }) {
-                    Text("No")
+                    Text("No", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
                 }
-            }
+            },
+            containerColor = MaterialTheme.colorScheme.surface,
+            titleContentColor = MaterialTheme.colorScheme.onSurface,
+            textContentColor = MaterialTheme.colorScheme.onSurface
         )
+    }
+}
+
+@Composable
+fun BackgroundContainer(
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+) {
+    Box(modifier = modifier.fillMaxSize()) {
+        Image(
+            painter = painterResource(id = R.drawable.clocks_gpt),
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop,
+            alpha = 0.1f // Fade the image to make it subtle
+        )
+        content()
     }
 }

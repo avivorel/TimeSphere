@@ -3,40 +3,14 @@ package com.example.timesphere.screens
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.VerticalDivider
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableDoubleStateOf
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -52,9 +26,6 @@ import com.example.timesphere.viewmodels.AppViewModel
 import com.example.timesphere.viewmodels.ShiftsViewModel
 import java.util.Calendar
 
-
-
-
 @Composable
 fun ReportScreen(
     appViewModel: AppViewModel,
@@ -66,28 +37,34 @@ fun ReportScreen(
     LaunchedEffect(Unit) {
         shiftsViewModel.getShiftsForMonth(currentMonthIndexFromSystem)
     }
-    Column(modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        MonthSlider(modifier = Modifier.fillMaxWidth(),startMonthIndex = currentMonthIndexFromSystem,
+        MonthSlider(
+            modifier = Modifier.fillMaxWidth(),
+            startMonthIndex = currentMonthIndexFromSystem,
             onClickNext = {
                 currentMonthIndexFromSystem = (currentMonthIndexFromSystem + 1) % 12
                 Log.d(TAG, "ReportScreen: current Month: $currentMonthIndexFromSystem")
                 shiftsViewModel.getShiftsForMonth(currentMonthIndexFromSystem)
-            }, onClickPrev = {
+            },
+            onClickPrev = {
                 currentMonthIndexFromSystem = (currentMonthIndexFromSystem - 1 + 12) % 12
                 Log.d(TAG, "ReportScreen: current Month: $currentMonthIndexFromSystem")
                 shiftsViewModel.getShiftsForMonth(currentMonthIndexFromSystem)
-            })
+            }
+        )
         HorizontalDivider()
-        ShiftTable(shiftsViewModel.shifts,appViewModel= appViewModel,shiftsViewModel = shiftsViewModel)
+        ShiftTable(shiftsViewModel.shifts, appViewModel = appViewModel, shiftsViewModel = shiftsViewModel)
     }
 }
 
 @Composable
 fun SummaryRow(
-               appViewModel: AppViewModel,
-               shiftsViewModel: ShiftsViewModel){
+    appViewModel: AppViewModel,
+    shiftsViewModel: ShiftsViewModel
+) {
     var totalMoneyMade by remember { mutableDoubleStateOf(0.00) }
     var daysWorked by remember { mutableIntStateOf(0) }
     val utils = Utils()
@@ -98,136 +75,188 @@ fun SummaryRow(
         }
         daysWorked = shiftsViewModel.shifts.size
     }
-    Row(modifier = Modifier.fillMaxWidth()){
-        Spacer(modifier= Modifier.weight(1f))
-        Text(text = "Days worked:    $daysWorked",modifier = Modifier, style = TextStyle(
-            fontSize = 16.sp,
-        ))
-        Spacer(modifier= Modifier.weight(1f))
-        Text(text = "Money made:    ${String.format("%.2f",totalMoneyMade) }",modifier = Modifier, style = TextStyle(
-            fontSize = 16.sp,
-            color = Color.Green
-        ))
-        Spacer(modifier= Modifier.weight(1f))
+    Row(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+        Spacer(modifier = Modifier.weight(1f))
+        Text(
+            text = "Days worked: $daysWorked",
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Spacer(modifier = Modifier.weight(1f))
+        Text(
+            text = "Money made: $${String.format("%.2f", totalMoneyMade)}",
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Spacer(modifier = Modifier.weight(1f))
     }
-
 }
 
 @Composable
-fun ShiftTable(shifts: List<Shift>,
-               appViewModel: AppViewModel,
-               shiftsViewModel: ShiftsViewModel) {
+fun ShiftTable(
+    shifts: List<Shift>,
+    appViewModel: AppViewModel,
+    shiftsViewModel: ShiftsViewModel
+) {
     var showTimePicker by remember { mutableStateOf(false) }
     var isStartTime by remember { mutableStateOf(false) }
-    if (showTimePicker && shiftsViewModel.selectedShiftIndex!=null) {
-        if(isStartTime) {
-            EditTimeBox(shiftsViewModel.selectedShiftIndex!!.getStartTime(), onValueChange = {
-                shiftsViewModel.selectedShiftIndex!!.updateTimestamp(it,false) {
-                    showTimePicker = false
-                }
-            }, onDismissRequest = {
-                showTimePicker = false
-            })
-        }
-        else {
-            EditTimeBox(shiftsViewModel.selectedShiftIndex!!.getEndTime(), onValueChange = {
-                shiftsViewModel.selectedShiftIndex!!.updateTimestamp(it,true) {
-                    showTimePicker = false
-                }
-            }, onDismissRequest = {
-                showTimePicker = false
-            })
+    if (showTimePicker && shiftsViewModel.selectedShiftIndex != null) {
+        if (isStartTime) {
+            EditTimeBox(
+                shiftsViewModel.selectedShiftIndex!!.getStartTime(),
+                onValueChange = {
+                    shiftsViewModel.selectedShiftIndex!!.updateTimestamp(it, false) {
+                        showTimePicker = false
+                    }
+                },
+                onDismissRequest = { showTimePicker = false }
+            )
+        } else {
+            EditTimeBox(
+                shiftsViewModel.selectedShiftIndex!!.getEndTime(),
+                onValueChange = {
+                    shiftsViewModel.selectedShiftIndex!!.updateTimestamp(it, true) {
+                        showTimePicker = false
+                    }
+                },
+                onDismissRequest = { showTimePicker = false }
+            )
         }
     }
 
-        Column(
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState())
+    ) {
+        // Table Header
+        Row(
             Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState())
+                .background(MaterialTheme.colorScheme.surfaceVariant)
+                .padding(vertical = 12.dp)
         ) {
-            // Table Header
-            Row(Modifier.fillMaxWidth()) {
-                Text(text = "Day", Modifier.weight(1f), textAlign = TextAlign.Center)
-                Text(text = "Date", Modifier.weight(1f), textAlign = TextAlign.Center)
-                Text(text = "Start Time", Modifier.weight(1f), textAlign = TextAlign.Center)
-                Text(text = "End Time", Modifier.weight(1f), textAlign = TextAlign.Center)
-                Text(text = "Total Time", Modifier.weight(1f), textAlign = TextAlign.Center)
-                Text(text = "Money Made", Modifier.weight(1f), textAlign = TextAlign.Center)
-            }
-            HorizontalDivider(thickness = 1.dp, modifier = Modifier.fillMaxWidth())
-
-
-            // Table Rows
-            shifts.forEachIndexed{ index, shift ->
-                val moneyMade = if (Utils().calculateMoneyMadeInShift(
-                        shift,
-                        appViewModel.user.hourlyPay
-                    ) != 0.00
-                ) {
-                    String.format(
-                        "%.2f",
-                        Utils().calculateMoneyMadeInShift(shift, appViewModel.user.hourlyPay)
-                    )
-                } else {
-                    "--"
-                }
-                Row(
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp)
-                        .height(IntrinsicSize.Min)
-                ) {
-                    Text(text = shift.getDay(), Modifier.weight(1f), textAlign = TextAlign.Center)
-                    Text(text = shift.date, Modifier.weight(1f), textAlign = TextAlign.Center)
-                    VerticalDivider(
-                        modifier = Modifier.fillMaxHeight(),
-                        thickness = 1.dp,
-                        color = MaterialTheme.colorScheme.secondary
-                    )
-                    Text(
-                        text = shift.getStartTime(),
-                        Modifier
-                            .weight(1f)
-                            .clickable {
-                                if (shift.canModify()) {
-                                    shiftsViewModel.selectedShiftIndex = shift
-                                    showTimePicker = true
-                                    isStartTime = true
-                                }
-                            },
-                        textAlign = TextAlign.Center
-                    )
-                    Text(
-                        text = shift.getEndTime(),
-                        Modifier
-                            .weight(1f)
-                            .clickable {
-                                if (shift.canModify()) {
-                                    shiftsViewModel.selectedShiftIndex = shift
-                                    showTimePicker = true
-                                    isStartTime = false
-                                }
-                            },
-                        textAlign = TextAlign.Center
-                    )
-                    Text(
-                        text = shift.hoursWorked,
-                        Modifier.weight(1f),
-                        textAlign = TextAlign.Center
-                    )
-                    Text(text = moneyMade, Modifier.weight(1f), textAlign = TextAlign.Center)
-                }
-                HorizontalDivider(thickness = 1.dp, modifier = Modifier.fillMaxWidth())
-            }
-            SummaryRow(appViewModel = appViewModel,shiftsViewModel = shiftsViewModel)
+            Text(
+                text = "Day",
+                Modifier.weight(1f),
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.titleMedium
+            )
+            Text(
+                text = "Date",
+                Modifier.weight(1f),
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.titleMedium
+            )
+            Text(
+                text = "Start Time",
+                Modifier.weight(1.2f),
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.titleMedium
+            )
+            Text(
+                text = "End Time",
+                Modifier.weight(1.2f),
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.titleMedium
+            )
+            Text(
+                text = "Total Time",
+                Modifier.weight(1.2f),
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.titleMedium
+            )
+            Text(
+                text = "Money Made",
+                Modifier.weight(1.2f),
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.titleMedium
+            )
         }
+        HorizontalDivider(thickness = 2.dp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f))
 
+        // Table Rows
+        shifts.forEachIndexed { index, shift ->
+            val moneyMade = if (Utils().calculateMoneyMadeInShift(shift, appViewModel.user.hourlyPay) != 0.00) {
+                String.format("%.2f", Utils().calculateMoneyMadeInShift(shift, appViewModel.user.hourlyPay))
+            } else {
+                "--"
+            }
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .background(
+                        if (index % 2 == 0) MaterialTheme.colorScheme.surface
+                        else MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)
+                    )
+                    .padding(vertical = 12.dp, horizontal = 8.dp)
+                    .heightIn(min = 48.dp) // Fixed: Replaced minimumHeight with heightIn
+                    .height(IntrinsicSize.Min)
+            ) {
+                Text(
+                    text = shift.getDay(),
+                    Modifier.weight(1f),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                Text(
+                    text = shift.date,
+                    Modifier.weight(1f),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                VerticalDivider(
+                    modifier = Modifier.fillMaxHeight(),
+                    thickness = 2.dp,
+                    color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.5f)
+                )
+                Text(
+                    text = shift.getStartTime(),
+                    Modifier
+                        .weight(1.2f)
+                        .clickable {
+                            if (shift.canModify()) {
+                                shiftsViewModel.selectedShiftIndex = shift
+                                showTimePicker = true
+                                isStartTime = true
+                            }
+                        },
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                Text(
+                    text = shift.getEndTime(),
+                    Modifier
+                        .weight(1.2f)
+                        .clickable {
+                            if (shift.canModify()) {
+                                shiftsViewModel.selectedShiftIndex = shift
+                                showTimePicker = true
+                                isStartTime = false
+                            }
+                        },
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                Text(
+                    text = shift.hoursWorked,
+                    Modifier.weight(1.2f),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                Text(
+                    text = moneyMade,
+                    Modifier.weight(1.2f),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
+            HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f))
+        }
+        SummaryRow(appViewModel = appViewModel, shiftsViewModel = shiftsViewModel)
+    }
 }
-
-
-
-
 
 @Composable
 fun TimePickerDialog(
@@ -248,26 +277,20 @@ fun TimePickerDialog(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.padding(16.dp)
         ) {
-            // Time Scroller
             Row(verticalAlignment = Alignment.CenterVertically) {
-                // Hours Selector
                 TimeSelector(
                     value = hours.toInt(),
                     range = 0..23,
                     onValueChange = { hours = it }
                 )
                 Text(":")
-                // Minutes Selector
                 TimeSelector(
                     value = minutes.toInt(),
                     range = 0..59,
                     onValueChange = { minutes = it }
                 )
             }
-
             Spacer(modifier = Modifier.height(16.dp))
-
-            // Action Buttons
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
@@ -279,7 +302,6 @@ fun TimePickerDialog(
                     Text("OK")
                 }
             }
-
         }
     }
 }
@@ -288,19 +310,16 @@ fun TimePickerDialog(
 fun TimeSelector(value: Int, range: IntRange, onValueChange: (String) -> Unit) {
     var currentValue by remember { mutableStateOf(value) }
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        // Increment Button
         IconButton(onClick = {
             if (currentValue < range.last) currentValue++
             onValueChange(currentValue.toString())
         }) {
             Icon(Icons.Default.KeyboardArrowUp, contentDescription = "Increase")
         }
-        // Display Value
         Text(
             text = currentValue.toString().padStart(2, '0'),
             style = MaterialTheme.typography.titleLarge
         )
-        // Decrement Button
         IconButton(onClick = {
             if (currentValue > range.first) currentValue--
             onValueChange(currentValue.toString())
@@ -311,8 +330,7 @@ fun TimeSelector(value: Int, range: IntRange, onValueChange: (String) -> Unit) {
 }
 
 @Composable
-fun EditTimeBox(time: String,onValueChange: (String) -> Unit,onDismissRequest: () -> Unit){
-
+fun EditTimeBox(time: String, onValueChange: (String) -> Unit, onDismissRequest: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -324,9 +342,7 @@ fun EditTimeBox(time: String,onValueChange: (String) -> Unit,onDismissRequest: (
             onTimeSelected = { selectedTime ->
                 onValueChange(selectedTime)
             },
-            onDismissRequest = {
-                onDismissRequest()
-            }
+            onDismissRequest = { onDismissRequest() }
         )
     }
 }
