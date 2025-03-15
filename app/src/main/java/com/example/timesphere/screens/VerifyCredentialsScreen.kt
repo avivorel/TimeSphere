@@ -2,18 +2,11 @@ package com.example.timesphere.screens
 
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -21,237 +14,303 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.timesphere.ui.theme.BackgroundContainer
 import com.example.timesphere.ui.theme.RoundedCornerCardTop
+import com.example.timesphere.ui.theme.TimeSphereTheme
 import com.example.timesphere.viewmodels.AppViewModel
 
 @Composable
 fun VerifyCredentials(
     navHost: NavHostController = rememberNavController(),
-    appViewModel : AppViewModel = viewModel()
-){
-    val headline by remember {mutableStateOf("Verify Credentials")}
-    val headlineSubtext by remember { mutableStateOf(
-        """Those were given to us by your Employer.
-            |If you see anything wrong here,
-            |please contact your Immediate supervisor.
-        """.trimMargin()
-    ) }
-    var password by remember { mutableStateOf("Password") }
-    var repeatPassword by remember { mutableStateOf("Repeat") }
+    appViewModel: AppViewModel = viewModel()
+) {
+    val headline by remember { mutableStateOf("Verify Credentials") }
+//    val headlineSubtext by remember { mutableStateOf(
+//        """Those were given to us by your Employer.
+//            |Please contact him If you see anything wrong here
+//        """.trimMargin()
+//    ) }
     val context = LocalContext.current
 
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .background(Color.White),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ){
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 40.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ){
-            Text(text = headline,
-                textAlign = TextAlign.Center)
-        }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 40.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ){
-            Text(text = headlineSubtext,textAlign = TextAlign.Center)
-        }
-        Row(modifier = Modifier
-            .weight(3f)
-            .fillMaxSize(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center){
-            RoundedCornerCardTop(
-                content = {
-                    Column(modifier = Modifier
-                        .fillMaxSize(),
-                        verticalArrangement = Arrangement.Top,
+    TimeSphereTheme {
+        BackgroundContainer {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp), // Match HomeScreen padding
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Top Section: Headline and Subtext (fixed height)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(150.dp) // Fixed height to match HomeScreen
+                        .padding(top = 32.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(
                         horizontalAlignment = Alignment.CenterHorizontally
-                    ){
-                        Row(modifier= Modifier
-                            .padding(top= 30.dp, bottom = 50.dp)
-                        ){
-                            Text(
-                                "Login",
-                                modifier = Modifier,
-                                fontSize = 35.sp,
-                                fontFamily = FontFamily.SansSerif
-                            )
-                        }
-                        Row(modifier= Modifier
-                            .padding(20.dp)
-                            .fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceEvenly
-                        ){
-                            Spacer(modifier = Modifier.weight(0.25f))
-                            TextField(modifier = Modifier.weight(1f),
-                                textStyle = TextStyle(textAlign = TextAlign.Center),
-                                value = appViewModel.user.firstName,
-                                onValueChange = {
-                                },
-                                enabled = false
-                            )
-                            Spacer(modifier = Modifier.weight(0.5f))
-                            TextField(modifier = Modifier.weight(1f),
-                                textStyle = TextStyle(textAlign = TextAlign.Center),
-                                value = appViewModel.user.lastName,
-                                onValueChange = {
-                                },
-                                enabled = false
-                            )
-                            Spacer(modifier = Modifier.weight(0.25f))
-                        }
-                        Row(modifier= Modifier
-                            .padding(top= 20.dp, bottom = 20.dp)
-                        ){
-                            Spacer(modifier = Modifier.weight(0.25f))
-                            TextField(modifier = Modifier.weight(1f),
-                                textStyle = TextStyle(textAlign = TextAlign.Center),
-                                value = appViewModel.user.id,
-                                onValueChange = {
-                                },
-                                enabled = false
-                            )
-                            Spacer(modifier = Modifier.weight(0.5f))
-                            TextField(modifier = Modifier.weight(1f),
-                                textStyle = TextStyle(textAlign = TextAlign.Center),
-                                value = appViewModel.user.phoneNumber,
-                                onValueChange = {
-                                },
-                                enabled = false
-                            )
-                            Spacer(modifier = Modifier.weight(0.25f))
-                        }
-                        Row(modifier= Modifier
-                            .padding(top = 20.dp, bottom = 20.dp)
-                            .fillMaxWidth()
-                            , horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically
-                        ){
-                            Spacer(modifier = Modifier.weight(0.25f))
-                            TextField(modifier = Modifier.weight(1f),
-                                textStyle = TextStyle(textAlign = TextAlign.Center),
-                                value = appViewModel.user.email,
-                                onValueChange = {
-                                },
-                                enabled = false
-                            )
-                            Spacer(modifier = Modifier.weight(0.25f))
-                        }
-                        Row(modifier= Modifier
-                            .padding(top = 20.dp, bottom = 20.dp)
-                            .fillMaxWidth()
-                            , horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically
-                        ){
-                            Spacer(modifier = Modifier.weight(0.25f))
-                            TextField(modifier = Modifier
-                                .focusable(true)
-                                .onFocusChanged {
-                                    if (it.isFocused && appViewModel.userPassword == "Password") {
-                                        appViewModel.userPassword = ""
-                                    }
-                                }.weight(1f),
-                                textStyle = TextStyle(textAlign = TextAlign.Center),
-                                value = appViewModel.userPassword,
-                                onValueChange = {
-                                    appViewModel.userPassword = it
-                                },
-                                enabled = true
-                            )
-                            Spacer(modifier = Modifier.weight(0.5f))
-                            TextField(modifier = Modifier
-                                .focusable(true)
-                                .onFocusChanged {
-                                    if (it.isFocused && appViewModel.userPasswordRepeated == "Repeat password") {
-                                        appViewModel.userPasswordRepeated = ""
-                                    }
-                                }.weight(1f),
-                                textStyle = TextStyle(textAlign = TextAlign.Center),
-                                value = appViewModel.userPasswordRepeated,
-                                onValueChange = {
-                                    appViewModel.userPasswordRepeated = it
-                                },
-                                enabled = true
-                            )
-                            Spacer(modifier = Modifier.weight(0.25f))
-                        }
-                        Row(modifier= Modifier
-                            .padding(top= 20.dp, bottom = 20.dp)
-                            , horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically
-                        ){
-                            Spacer(modifier = Modifier.weight(0.25f))
-                            TextField(modifier = Modifier.weight(1f),
-                                textStyle = TextStyle(textAlign = TextAlign.Center),
-                                value = appViewModel.user.hourlyPay.toString(),
-                                onValueChange = {
-                                },
-                                enabled = false
-                            )
-                            Checkbox(checked = true, onCheckedChange = {}, enabled = false )
-                            Text("Extra Hours")
-                            Spacer(modifier = Modifier.weight(0.25f))
-                        }
-                        Row(modifier= Modifier
-                            .padding(top= 20.dp, bottom = 20.dp)
-                            , horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically
-                        ){
-                            Button(onClick = {
-                                if(appViewModel.checkIfPasswordMatch()){
-                                    appViewModel.isUserAlreadySignedUp { isSignedUp ->
-                                        if (isSignedUp){
-                                            Toast.makeText(context,"Already signed up",Toast.LENGTH_LONG).show()
-                                        }
-                                        else{
-                                            appViewModel.signUpUser(){
-                                                Toast.makeText(context,"Signed up successfully",Toast.LENGTH_LONG).show()
-                                                navHost.navigate("home_screen")
+                    ) {
+                        Text(
+                            text = headline,
+                            style = MaterialTheme.typography.headlineLarge,
+                            color = MaterialTheme.colorScheme.onBackground,
+                            textAlign = TextAlign.Center
+                        )
+//                        Text(
+//                            text = headlineSubtext,
+//                            style = MaterialTheme.typography.bodyLarge,
+//                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+//                            textAlign = TextAlign.Center,
+//                            modifier = Modifier.padding(top = 8.dp)
+//                        )
+                    }
+                }
+
+                // Card Section: Stretches to bottom with subtle gradient background
+                RoundedCornerCardTop(
+                    content = {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(
+                                    Brush.verticalGradient(
+                                        colors = listOf(
+                                            MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                                            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)
+                                        )
+                                    )
+                                )
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(32.dp), // Increased padding to match HomeScreen
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    text = "Login",
+                                    style = MaterialTheme.typography.headlineMedium,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.padding(bottom = 24.dp)
+                                )
+
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 8.dp),
+                                    horizontalArrangement = Arrangement.SpaceEvenly
+                                ) {
+                                    ReadOnlyTextField(
+                                        value = appViewModel.user.firstName,
+                                        label = "First Name",
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    Spacer(modifier = Modifier.width(16.dp))
+                                    ReadOnlyTextField(
+                                        value = appViewModel.user.lastName,
+                                        label = "Last Name",
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                }
+
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 8.dp),
+                                    horizontalArrangement = Arrangement.SpaceEvenly
+                                ) {
+                                    ReadOnlyTextField(
+                                        value = appViewModel.user.id,
+                                        label = "ID",
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    Spacer(modifier = Modifier.width(16.dp))
+                                    ReadOnlyTextField(
+                                        value = appViewModel.user.phoneNumber,
+                                        label = "Phone Number",
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                }
+
+                                ReadOnlyTextField(
+                                    value = appViewModel.user.email,
+                                    label = "Email",
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 8.dp)
+                                )
+
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 8.dp),
+                                    horizontalArrangement = Arrangement.SpaceEvenly
+                                ) {
+                                    PasswordTextField(
+                                        value = appViewModel.userPassword,
+                                        onValueChange = { appViewModel.userPassword = it },
+                                        label = "Password",
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    Spacer(modifier = Modifier.width(16.dp))
+                                    PasswordTextField(
+                                        value = appViewModel.userPasswordRepeated,
+                                        onValueChange = { appViewModel.userPasswordRepeated = it },
+                                        label = "Repeat Password",
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                }
+
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 8.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.Center
+                                ) {
+                                    ReadOnlyTextField(
+                                        value = appViewModel.user.hourlyPay.toString(),
+                                        label = "Hourly Pay",
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    Spacer(modifier = Modifier.width(16.dp))
+                                    Checkbox(
+                                        checked = true,
+                                        onCheckedChange = {},
+                                        enabled = false,
+                                        colors = CheckboxDefaults.colors(
+                                            checkedColor = MaterialTheme.colorScheme.primary
+                                        )
+                                    )
+                                    Text(
+                                        text = "Extra Hours",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                }
+
+                                Spacer(modifier = Modifier.height(24.dp))
+                                VerifyButton(
+                                    onClick = {
+                                        if (appViewModel.checkIfPasswordMatch()) {
+                                            appViewModel.isUserAlreadySignedUp { isSignedUp ->
+                                                if (isSignedUp) {
+                                                    Toast.makeText(context, "Already signed up", Toast.LENGTH_LONG).show()
+                                                } else {
+                                                    appViewModel.signUpUser {
+                                                        Toast.makeText(context, "Signed up successfully", Toast.LENGTH_LONG).show()
+                                                        navHost.navigate("home_screen")
+                                                    }
+                                                }
                                             }
                                         }
                                     }
-                                }
-                            }){
-                                Text("Verify")
+                                )
                             }
                         }
-                    }
-                }, modifier = Modifier.background(Color.Transparent),
-                onClick = {
-
-                }) {
-
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight(), // Stretches to bottom, matching HomeScreen
+                    onClick = { /* No-op */ }
+                )
             }
         }
     }
 }
 
-
-
-@Preview
 @Composable
-fun preview(){
-    VerifyCredentials()
+fun ReadOnlyTextField(
+    value: String,
+    label: String,
+    modifier: Modifier = Modifier
+) {
+    TextField(
+        value = value,
+        onValueChange = {},
+        label = { Text(label) },
+        modifier = modifier,
+        enabled = false,
+        textStyle = TextStyle(textAlign = TextAlign.Center),
+        colors = TextFieldDefaults.colors(
+            disabledTextColor = MaterialTheme.colorScheme.onSurface,
+            disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+        )
+    )
+}
+
+@Composable
+fun PasswordTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String,
+    modifier: Modifier = Modifier
+) {
+    TextField(
+        value = value,
+        onValueChange = onValueChange,
+        label = { Text(label) },
+        modifier = modifier
+            .focusable(true)
+            .onFocusChanged {
+                if (it.isFocused && (value == "Password" || value == "Repeat password")) {
+                    onValueChange("")
+                }
+            },
+        textStyle = TextStyle(textAlign = TextAlign.Center),
+        enabled = true,
+        colors = TextFieldDefaults.colors(
+            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+            focusedLabelColor = MaterialTheme.colorScheme.primary,
+            unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            focusedContainerColor = MaterialTheme.colorScheme.surface,
+            unfocusedContainerColor = MaterialTheme.colorScheme.surface
+        )
+    )
+}
+
+@Composable
+fun VerifyButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .size(120.dp)
+            .clip(CircleShape)
+            .shadow(12.dp, CircleShape)
+            .background(
+                Brush.linearGradient(
+                    colors = listOf(
+                        MaterialTheme.colorScheme.primary,
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
+                    )
+                )
+            )
+            .clickable { onClick() },
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = "Verify",
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onPrimaryContainer,
+            textAlign = TextAlign.Center
+        )
+    }
 }

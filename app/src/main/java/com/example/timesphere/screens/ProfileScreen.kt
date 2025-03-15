@@ -18,7 +18,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.timesphere.ui.theme.RoundedCornerCardTop
 import com.example.timesphere.ui.theme.RoundedImageWithLocalUpdate
-import com.example.timesphere.ui.theme.TimeSphereTheme
 import com.example.timesphere.viewmodels.AppViewModel
 import com.example.timesphere.viewmodels.ShiftsViewModel
 import com.example.timesphere.model.Utils
@@ -170,8 +169,7 @@ fun ProfileScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight(),
-            onClick = { /* Optional */ },
-            onDismiss = { }
+            onClick = { /* Optional */ }
         )
     }
 }

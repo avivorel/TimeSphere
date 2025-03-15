@@ -15,8 +15,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.font.FontWeight.Companion.Bold
-import androidx.compose.ui.text.font.FontWeight.Companion.SemiBold
 import androidx.compose.ui.unit.sp
 import com.example.timesphere.R
 
@@ -67,18 +65,14 @@ private val LightColorScheme = lightColorScheme(
     onSecondaryContainer = Color.White
 )
 
-// Define Poppins Font Family
+// Define Poppins Font Family (unchanged)
 val PoppinsFontFamily = FontFamily(
     Font(R.font.poppinsregular),
     Font(R.font.poppinssemibold),
     Font(R.font.poppinsbold)
 )
 
-object Regular {
-
-}
-
-// Updated Typography with Poppins
+// Updated Typography with Poppins (unchanged)
 val Typography = Typography(
     headlineLarge = TextStyle(
         fontFamily = PoppinsFontFamily,
