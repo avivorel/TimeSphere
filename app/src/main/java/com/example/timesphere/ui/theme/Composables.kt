@@ -134,22 +134,32 @@ fun ClockInButton(
 
     Box(
         modifier = modifier
-            .size(200.dp) // Increased size for greater visibility
-            .shadow(16.dp, CircleShape, clip = true) // Larger shadow for depth
-            .graphicsLayer(rotationZ = glowRotation.value) // Rotate the glow effect
-            .background(glowGradient, CircleShape) // Outer glow ring
-            .padding(12.dp) // Padding between glow and main button
+            .size(220.dp) // Slightly bigger size overall
+            .shadow(24.dp, CircleShape, clip = false) // Increase shadow, no clipping
     ) {
+        // Outer Glow Ring (rotating)
         Box(
             modifier = Modifier
-                .fillMaxSize()
+                .matchParentSize()
+                .graphicsLayer(rotationZ = glowRotation.value) // Only glow rotates
+                .background(glowGradient, CircleShape)
+        )
+
+        // Inner Button (static, slightly smaller)
+        Box(
+            modifier = Modifier
+                .size(180.dp) // Make inner button smaller to expose glow
+                .align(Alignment.Center)
                 .clip(CircleShape)
                 .background(buttonColor)
                 .graphicsLayer(
                     scaleX = pressScale * pulseScale.value,
                     scaleY = pressScale * pulseScale.value
                 )
-                .clickable { onClick(); isClockedIn = !isClockedIn },
+                .clickable {
+                    onClick()
+                    isClockedIn = !isClockedIn
+                },
             contentAlignment = Alignment.Center
         ) {
             Column(
@@ -160,18 +170,19 @@ fun ClockInButton(
                     painter = painterResource(id = if (isClockedIn) android.R.drawable.ic_menu_save else android.R.drawable.ic_menu_close_clear_cancel),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                    modifier = Modifier.size(48.dp) // Larger icon for emphasis
+                    modifier = Modifier.size(48.dp)
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = text,
-                    style = MaterialTheme.typography.headlineMedium, // Larger, bolder text
+                    style = MaterialTheme.typography.headlineMedium,
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
                     textAlign = TextAlign.Center
                 )
             }
         }
     }
+
 }
 
 @Composable

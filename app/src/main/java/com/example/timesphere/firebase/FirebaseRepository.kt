@@ -101,7 +101,12 @@ class FirebaseRepository {
         firestore.collection("shifts").document(shift.shiftId)
             .update(update)
             .addOnSuccessListener {
-                Log.d(TAG, "updateShiftStartTime: Successfully updated shift time")
+                if(!isEnd) {
+                    Log.d(TAG, "updateShiftStartTime: Successfully updated shift time")
+                }
+                else{
+                    Log.d(TAG, "updateShiftEndTime: Successfully updated shift time")
+                }
                 onResult(true)
             }
             .addOnFailureListener{

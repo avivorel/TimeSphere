@@ -8,11 +8,14 @@ import java.util.concurrent.TimeUnit
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import java.util.UUID
 
+
+val TAG = "Utils"
 class Utils{
     fun formatTimestampToDayAndDate(startTime: Timestamp): Pair<String, String> {
         // Convert Timestamp to Date
@@ -57,6 +60,7 @@ class Utils{
     fun formatTimestampToTime(startTime: Timestamp): String {
         val date = startTime.toDate()
         val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault()) // 24-hour format
+        Log.d(TAG, "formatTimestampToTime: startTime = ${timeFormat.format(date)}")
         return timeFormat.format(date)
     }
     private fun getShiftTime(startTime: Timestamp, endTime :Timestamp) :String{

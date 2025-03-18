@@ -36,8 +36,13 @@ data class Shift(    var shiftId: String = "",
         )
         val updatedDateTime = currentDateTime.withHour(newHour).withMinute(newMinute)
         val updatedInstant = updatedDateTime.atZone(ZoneId.systemDefault()).toInstant()
-        startTime = Timestamp(updatedInstant.epochSecond, updatedInstant.nano)
-        firebase.updateShiftStartTime(this,startTime,isEnd){ isSuccessful ->
+        if(!isEnd) {
+            startTime = Timestamp(updatedInstant.epochSecond, updatedInstant.nano)
+        }
+        else{
+            endTime = Timestamp(updatedInstant.epochSecond, updatedInstant.nano)
+        }
+        firebase.updateShiftStartTime(this,if(!isEnd) startTime else endTime,isEnd){ isSuccessful ->
             onResult(isSuccessful)
         }
     }
