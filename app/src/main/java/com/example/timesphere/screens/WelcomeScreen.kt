@@ -95,7 +95,7 @@ fun WelcomeScreen(
                             verticalArrangement = Arrangement.Top,
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Text("Login", style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.padding(vertical = 24.dp))
+                            Text("Sign Up", style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.padding(vertical = 24.dp))
 
                             TextField(
                                 value = employerId,
@@ -139,8 +139,16 @@ fun WelcomeScreen(
                                         employerId = employerId,
                                         employeeId = id,
                                         email = email
-                                    ).observeForever { searchResult ->
-                                        result = searchResult
+                                    ){ isAlreadySignedUp ->
+                                        if(isAlreadySignedUp){
+                                            Toast.makeText(context, "Already registered. Please sign in.", Toast.LENGTH_LONG).show()
+                                            navHost.navigate("login_screen")
+                                        }
+                                        else{
+                                             appViewModel.fetchUser(employerId, id,email).observeForever{ res->
+                                                 result =res
+                                            }
+                                        }
                                     }
                                 },
                                 modifier = Modifier.fillMaxWidth()

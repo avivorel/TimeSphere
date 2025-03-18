@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.timesphere.model.FunctionResult
 import com.example.timesphere.model.User
 import com.example.timesphere.model.Utils
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -36,7 +37,7 @@ class AppViewModel : ViewModel(){
     // Job location coordinates (example: New York City)
     private val JOB_LATITUDE = 32.7757842 // Replace with your job location
     private val JOB_LONGITUDE = 35.0224787 // Replace with your job location
-    private val JOB_RADIUS_METERS = 100.0 // 100 meters radius
+    private val JOB_RADIUS_METERS = 1000.0 // 100 meters radius
 
     // Current user location
     var userLatitude by mutableStateOf(0.0)
@@ -123,7 +124,17 @@ class AppViewModel : ViewModel(){
     fun logOut(){
         firebaseRepository.logout()
     }
-    fun findEmployeeInEmployer(employerId: String, employeeId: String, email: String) = firebaseRepository.findEmployeeInEmployer(employerId, employeeId, email)
+    fun findEmployeeInEmployer(employerId: String, employeeId: String, email: String,onResult: (Boolean) -> Unit) {
+        firebaseRepository.isAlreadySignedUp(employeeId,email,employerId){ isSignedUp ->
+            if(isSignedUp){
+                onResult(true)
+            }
+            else{
+                onResult(false)
+            }
+        }
+    }
+    fun fetchUser(employerId: String,employeeId: String,email: String) = firebaseRepository.findEmployeeInEmployer(employerId,employeeId,email)
 
     fun isUserAlreadySignedUp(onResult: (Boolean) -> Unit){
         firebaseRepository.isUserAlreadySignedUp(user,onResult = onResult)
