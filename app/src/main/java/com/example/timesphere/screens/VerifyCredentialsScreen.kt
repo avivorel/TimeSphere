@@ -211,9 +211,22 @@ fun VerifyCredentials(
                                                 if (isSignedUp) {
                                                     Toast.makeText(context, "Already signed up", Toast.LENGTH_LONG).show()
                                                 } else {
-                                                    appViewModel.signUpUser {
-                                                        Toast.makeText(context, "Signed up successfully", Toast.LENGTH_LONG).show()
-                                                        navHost.navigate("home_screen")
+                                                    appViewModel.signUpUser { isSuccess ->
+                                                        if(isSuccess) {
+                                                            Toast.makeText(
+                                                                context,
+                                                                "Signed up successfully",
+                                                                Toast.LENGTH_LONG
+                                                            ).show()
+                                                            navHost.navigate("home_screen")
+                                                        }
+                                                        else{
+                                                            Toast.makeText(
+                                                                context,
+                                                                "Password requirements are not met",
+                                                                Toast.LENGTH_LONG
+                                                            ).show()
+                                                        }
                                                     }
                                                 }
                                             }
