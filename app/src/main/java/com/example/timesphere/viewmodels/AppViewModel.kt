@@ -1,6 +1,7 @@
 package com.example.timesphere.viewmodels
 
 import FirebaseRepository
+import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -9,6 +10,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.timesphere.model.User
 import com.example.timesphere.model.Utils
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.QuerySnapshot
 import kotlinx.coroutines.delay
@@ -17,17 +20,14 @@ import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
-import android.content.Context
 
 val TAG = "AppViewModel"
 
 class AppViewModel : ViewModel(){
     var user by mutableStateOf(User())
     var firebaseRepository: FirebaseRepository = FirebaseRepository()
-    var userPassword by mutableStateOf("Password")
-    var userPasswordRepeated by mutableStateOf("Repeat password")
+    var userPassword by mutableStateOf("")
+    var userPasswordRepeated by mutableStateOf("")
     var isLoadingUserOnStartup by mutableStateOf(true)
     var hasError by mutableStateOf(false)
     var clockText by mutableStateOf("Clock In")
