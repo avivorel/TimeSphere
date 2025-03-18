@@ -76,7 +76,7 @@ class FirebaseRepository {
     }
 
 
-    private fun signInUser(email: String, password: String) {
+    fun signInUser(email: String, password: String,onResult: (Boolean) -> Unit) {
         auth.signInWithEmailAndPassword(email, password).addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 // Sign-in success, update UI accordingly.

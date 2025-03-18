@@ -34,9 +34,9 @@ class AppViewModel : ViewModel(){
     val utils = Utils()
 
     // Job location coordinates (example: New York City)
-    private val JOB_LATITUDE = 32.810557 // Replace with your job location
-    private val JOB_LONGITUDE = 34.984403 // Replace with your job location
-    private val JOB_RADIUS_METERS = 150000.0 // 100 meters radius
+    private val JOB_LATITUDE = 32.7757842 // Replace with your job location
+    private val JOB_LONGITUDE = 35.0224787 // Replace with your job location
+    private val JOB_RADIUS_METERS = 100.0 // 100 meters radius
 
     // Current user location
     var userLatitude by mutableStateOf(0.0)
@@ -127,6 +127,9 @@ class AppViewModel : ViewModel(){
 
     fun isUserAlreadySignedUp(onResult: (Boolean) -> Unit){
         firebaseRepository.isUserAlreadySignedUp(user,onResult = onResult)
+    }
+    fun signIn(username:String,password:String,onResult: (Boolean) -> Unit){
+        firebaseRepository.signInUser(username,password,onResult)
     }
 
     fun setUser(querySnapshot: QuerySnapshot) {

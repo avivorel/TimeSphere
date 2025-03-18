@@ -34,6 +34,7 @@ import com.example.timesphere.screens.VerifyCredentials
 import com.example.timesphere.viewmodels.AppViewModel
 
 import androidx.compose.material3.MaterialTheme
+import com.example.timesphere.screens.WelcomeScreen
 import com.example.timesphere.ui.theme.BackgroundContainer
 
 // Navigation destinations
@@ -47,6 +48,7 @@ sealed class NavDestination(val title: String, val route: String, val icon: Imag
 // Separate sealed class for all app destinations including non-bottom-nav ones
 sealed class AppNavigationDestinations(val route: String) {
     object Home : AppNavigationDestinations("home_screen")
+    object Welcome : AppNavigationDestinations("welcome_screen")
     object Profile : AppNavigationDestinations("profile_screen")
     object Report : AppNavigationDestinations("report_screen")
     object Settings : AppNavigationDestinations("settings_screen")
@@ -62,7 +64,7 @@ fun AppNavHostController(
         NavDestination.Home,
         NavDestination.Profile,
         NavDestination.Report,
-        NavDestination.Settings
+//        NavDestination.Settings
     )
 
     BackgroundContainer {
