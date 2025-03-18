@@ -12,9 +12,14 @@ import com.example.timesphere.screens.VerifyCredentials
 import com.example.timesphere.screens.WelcomeScreen
 import com.example.timesphere.viewmodels.AppViewModel
 
+import com.example.timesphere.screens.LoginScreen
+import com.example.timesphere.screens.PreAuthScreen
+
 sealed class OnBoardingDestinations(val title: String, val route: String) {
+    object PreAuthScreen : OnBoardingDestinations(title = "PreAuth", route = "pre_auth_screen")
     object WelcomeScreen : OnBoardingDestinations(title = "welcome", route = "welcome_screen")
     object CredentialsScreen : OnBoardingDestinations(title = "Credentials", route = "verify_credentials_screen")
+    object LoginScreen : OnBoardingDestinations(title = "Login", route = "login_screen")
 }
 
 @Composable
@@ -24,17 +29,29 @@ fun OnboardingNavControllerHost(
 ) {
     NavHost(
         navController = navController,
-        startDestination = OnBoardingDestinations.WelcomeScreen.route
+        startDestination = OnBoardingDestinations.PreAuthScreen.route
     ) {
-        // Welcome Screen
-        composable(OnBoardingDestinations.WelcomeScreen.route) {
-            WelcomeScreen(navHost = navController,appViewModel = appViewModel)
+        // Pre-Auth Screen
+        composable(OnBoardingDestinations.PreAuthScreen.route) {
+            PreAuthScreen(navHost = navController)
         }
 
-        // Profile Screen
-        composable(route = OnBoardingDestinations.CredentialsScreen.route) {
-            VerifyCredentials(navHost = navController,appViewModel = appViewModel)
+        // Welcome Screen
+        composable(OnBoardingDestinations.WelcomeScreen.route) {
+            WelcomeScreen(navHost = navController, appViewModel = appViewModel)
         }
+
+        // Credentials Screen
+        composable(route = OnBoardingDestinations.CredentialsScreen.route) {
+            VerifyCredentials(navHost = navController, appViewModel = appViewModel)
+        }
+
+        // Login Screen
+        composable(route = OnBoardingDestinations.LoginScreen.route) {
+            LoginScreen(navHost = navController, appViewModel = appViewModel)
+        }
+
+        // Home Screen
         composable(route = AppNavigationDestinations.Home.route) {
             AppNavHostController(appViewModel = appViewModel)
             BackHandler(true) {
