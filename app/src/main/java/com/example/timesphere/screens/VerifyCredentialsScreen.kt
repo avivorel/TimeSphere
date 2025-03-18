@@ -3,10 +3,31 @@ package com.example.timesphere.screens
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.focusable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.*
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -16,10 +37,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -29,6 +53,7 @@ import com.example.timesphere.ui.theme.BackgroundContainer
 import com.example.timesphere.ui.theme.RoundedCornerCardTop
 import com.example.timesphere.ui.theme.TimeSphereTheme
 import com.example.timesphere.viewmodels.AppViewModel
+import java.util.regex.Pattern
 
 @Composable
 fun VerifyCredentials(
@@ -164,6 +189,7 @@ fun VerifyCredentials(
                                         value = appViewModel.userPassword,
                                         onValueChange = { appViewModel.userPassword = it },
                                         label = "Password",
+                                        showRequirements = true,
                                         modifier = Modifier.weight(1f)
                                     )
                                     Spacer(modifier = Modifier.width(16.dp))
@@ -171,6 +197,7 @@ fun VerifyCredentials(
                                         value = appViewModel.userPasswordRepeated,
                                         onValueChange = { appViewModel.userPasswordRepeated = it },
                                         label = "Repeat Password",
+                                        showRequirements = false,
                                         modifier = Modifier.weight(1f)
                                     )
                                 }
@@ -272,32 +299,86 @@ fun PasswordTextField(
     value: String,
     onValueChange: (String) -> Unit,
     label: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    showRequirements: Boolean = true // Added showRequirements parameter
 ) {
-    TextField(
-        value = value,
-        onValueChange = onValueChange,
-        label = { Text(label) },
-        modifier = modifier
-            .focusable(true)
-            .onFocusChanged {
-                if (it.isFocused && (value == "Password" || value == "Repeat password")) {
-                    onValueChange("")
+    var passwordVisible by remember { mutableStateOf(false) }
+    var isPasswordValid by remember { mutableStateOf(true) }
+    val passwordRequirements = remember {
+        listOf(
+            "^(?=.*[0-9]).*$" to "Digit",
+            "^(?=.*[a-z]).*$" to "Lowercase",
+            "^(?=.*[A-Z]).*$" to "Uppercase",
+            "^(?=.*[@#\$%^&+=!]).*$" to "Special character",
+            "^.{8,}\$" to "Minimum 8 characters"
+        )
+    }
+
+    val requirementMet = remember(value) {
+        passwordRequirements.map { (regex, _) ->
+            Pattern.compile(regex).matcher(value).matches()
+        }
+    }
+
+    Column(modifier = modifier.fillMaxWidth()) {
+        TextField(
+            value = value,
+            onValueChange = { newPassword ->
+                onValueChange(newPassword)
+                isPasswordValid = validatePassword(newPassword)
+            },
+            label = { Text(label) },
+            modifier = Modifier.fillMaxWidth(),
+            textStyle = TextStyle(textAlign = TextAlign.Center),
+            enabled = true,
+            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Password),
+            trailingIcon = {
+                IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                    Icon(
+                        imageVector = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                        contentDescription = if (passwordVisible) "Hide Password" else "Show Password"
+                    )
                 }
             },
-        textStyle = TextStyle(textAlign = TextAlign.Center),
-        enabled = true,
-        colors = TextFieldDefaults.colors(
-            focusedTextColor = MaterialTheme.colorScheme.onSurface,
-            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-            focusedLabelColor = MaterialTheme.colorScheme.primary,
-            unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            focusedContainerColor = MaterialTheme.colorScheme.surface,
-            unfocusedContainerColor = MaterialTheme.colorScheme.surface
+            colors = TextFieldDefaults.colors(
+                focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                focusedLabelColor = MaterialTheme.colorScheme.primary,
+                unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surface
+            )
         )
-    )
-}
 
+        if (showRequirements) {
+            if (!isPasswordValid) {
+                Text(
+                    text = "⚠ Password requirements not met!",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Red,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            }
+
+            Column(modifier = Modifier.padding(top = 8.dp)) {
+                passwordRequirements.forEachIndexed { index, (_, requirementText) ->
+                    val color = if (requirementMet[index]) Color.Green else Color.Red
+                    Text(
+                        text = requirementText,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = color
+                    )
+                }
+            }
+        }
+    }
+}
+fun validatePassword(password: String): Boolean {
+    val passwordPattern = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#\$%^&+=!])(?=\\S+$).{8,}$"
+    val pattern = Pattern.compile(passwordPattern)
+    return pattern.matcher(password).matches()
+}
 @Composable
 fun VerifyButton(
     onClick: () -> Unit,
