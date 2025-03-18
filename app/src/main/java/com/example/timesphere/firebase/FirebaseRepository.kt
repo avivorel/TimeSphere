@@ -116,7 +116,29 @@ class FirebaseRepository {
                 onResult(false)
             }
     }
+    fun isAlreadySignedUp(employeeId: String,email:String,employerId:String,onResult: (Boolean) -> Unit){
+        try {
+            firestore.collection("employees")
+                .whereEqualTo("employeeId", employeeId)
+                .whereEqualTo("email", email)
+                .whereEqualTo("employerId", employerId)
+                .limit(1)
+                .get()
+                .addOnSuccessListener { querySnapshot->
+                    if (querySnapshot.isEmpty) {
+                        onResult(false) // No matching documents
+                    } else {
+                        onResult(true) // Matching document(s) found
+                    }                }
+                .addOnFailureListener{
+                    onResult(false)
+                }
 
+        } catch (e: Exception) {
+            // Handle exceptions (e.g., network issues, Firestore errors)
+            Log.d(TAG,"Error checking employee existence: ${e.message}")
+        }
+    }
     fun findEmployeeInEmployer(employerId: String, employeeId: String, email: String) = liveData {
         emit(FunctionResult.Loading)
         try {
@@ -132,7 +154,6 @@ class FirebaseRepository {
                 .continueWith { task ->
                     task.result?.getData() as? Map<*, *>
                 }.await()
-            val test = 3
             emit(FunctionResult.Success(result))
         } catch (e: Exception) {
             emit(FunctionResult.Error(e))
