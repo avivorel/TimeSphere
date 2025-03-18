@@ -81,8 +81,10 @@ class FirebaseRepository {
             if (task.isSuccessful) {
                 // Sign-in success, update UI accordingly.
                 val user = auth.currentUser
+                onResult(true)
             } else {
                 Log.w("SignIn", "signInWithEmail:failure", task.exception)
+                onResult(false)
             }
         }
     }
