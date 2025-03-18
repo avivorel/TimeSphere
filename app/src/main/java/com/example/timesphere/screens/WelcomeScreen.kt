@@ -133,11 +133,6 @@ fun WelcomeScreen(
 
                             Spacer(modifier = Modifier.padding(8.dp))
 
-                            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 12.dp)) {
-                                Checkbox(checked = false, onCheckedChange = {})
-                                Text("Allow FaceID", style = MaterialTheme.typography.bodyLarge)
-                            }
-
                             Button(
                                 onClick = {
                                     appViewModel.findEmployeeInEmployer(
