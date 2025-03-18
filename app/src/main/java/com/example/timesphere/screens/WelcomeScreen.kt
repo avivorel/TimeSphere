@@ -5,13 +5,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
@@ -25,8 +22,6 @@ import com.example.timesphere.ui.theme.BackgroundContainer
 import com.example.timesphere.ui.theme.RoundedCornerCardTop
 import com.example.timesphere.viewmodels.AppViewModel
 
-val TAG = "WelcomeScreen"
-
 @Composable
 fun WelcomeScreen(
     navHost: NavHostController = rememberNavController(),
@@ -36,10 +31,12 @@ fun WelcomeScreen(
     var result by remember { mutableStateOf<FunctionResult<Map<*, *>?>>(FunctionResult.None) }
     var navigatedOut by remember { mutableStateOf(false) }
 
+    var employerId by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var id by remember { mutableStateOf("") }
+
     when (result) {
-        is FunctionResult.Loading -> {
-            Toast.makeText(context, "Loading", Toast.LENGTH_LONG).show()
-        }
+        is FunctionResult.Loading -> Toast.makeText(context, "Loading", Toast.LENGTH_LONG).show()
         is FunctionResult.Success -> {
             val employeeData = (result as FunctionResult.Success<*>).data
             if (employeeData != null) {
@@ -52,9 +49,7 @@ fun WelcomeScreen(
                 Toast.makeText(context, "No employee found", Toast.LENGTH_LONG).show()
             }
         }
-        is FunctionResult.Error -> {
-            Toast.makeText(context, "Error", Toast.LENGTH_LONG).show()
-        }
+        is FunctionResult.Error -> Toast.makeText(context, "Error", Toast.LENGTH_LONG).show()
         else -> {}
     }
 
@@ -62,37 +57,23 @@ fun WelcomeScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 16.dp), // Match HomeScreen padding
+                .padding(horizontal = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Top Section: App Name & Greeting (fixed height)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(150.dp) // Fixed height to match HomeScreen
+                    .height(150.dp)
                     .padding(top = 32.dp),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = "Welcome to",
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = MaterialTheme.colorScheme.onBackground,
-                        textAlign = TextAlign.Center
-                    )
-                    Text(
-                        text = "TimeSphere",
-                        style = MaterialTheme.typography.headlineLarge,
-                        color = MaterialTheme.colorScheme.primary,
-                        textAlign = TextAlign.Center
-                    )
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("Welcome to", style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.onBackground, textAlign = TextAlign.Center)
+                    Text("TimeSphere", style = MaterialTheme.typography.headlineLarge, color = MaterialTheme.colorScheme.primary, textAlign = TextAlign.Center)
                 }
             }
 
-            // Card Section: Stretches to bottom with subtle gradient background
             RoundedCornerCardTop(
                 content = {
                     Box(
@@ -110,66 +91,59 @@ fun WelcomeScreen(
                         Column(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .padding(32.dp), // Increased padding to match HomeScreen
+                                .padding(32.dp),
                             verticalArrangement = Arrangement.Top,
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Text(
-                                "Login",
-                                style = MaterialTheme.typography.headlineMedium,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier.padding(vertical = 24.dp)
-                            )
+                            Text("Login", style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.padding(vertical = 24.dp))
 
-                            // Employer ID Field
                             TextField(
+                                value = employerId,
+                                onValueChange = { employerId = it },
                                 label = { Text("Employer ID") },
-                                value = appViewModel.user.employerId,
-                                modifier = Modifier.fillMaxWidth(),
-                                onValueChange = { appViewModel.updateUserField("employerId", it) },
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                                placeholder = { if (employerId.isEmpty()) Text("Enter Employer ID") },
+                                modifier = Modifier.fillMaxWidth().onFocusChanged { if (it.isFocused) employerId = "" },
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                singleLine = true
                             )
 
                             Spacer(modifier = Modifier.padding(8.dp))
 
-                            // Email Field
                             TextField(
+                                value = email,
+                                onValueChange = { email = it },
                                 label = { Text("Email") },
-                                value = appViewModel.user.email,
-                                modifier = Modifier.fillMaxWidth(),
-                                onValueChange = { appViewModel.updateUserField("email", it) },
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
+                                placeholder = { if (email.isEmpty()) Text("Enter Email") },
+                                modifier = Modifier.fillMaxWidth().onFocusChanged { if (it.isFocused) email = "" },
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                                singleLine = true
                             )
 
                             Spacer(modifier = Modifier.padding(8.dp))
 
-                            // Israeli ID Field
                             TextField(
+                                value = id,
+                                onValueChange = { id = it },
                                 label = { Text("תעודת זהות") },
-                                value = appViewModel.user.id,
-                                modifier = Modifier.fillMaxWidth(),
-                                onValueChange = { appViewModel.updateUserField("id", it) },
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                                placeholder = { if (id.isEmpty()) Text("Enter תעודת זהות") },
+                                modifier = Modifier.fillMaxWidth().onFocusChanged { if (it.isFocused) id = "" },
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                singleLine = true
                             )
 
                             Spacer(modifier = Modifier.padding(8.dp))
 
-                            // Face ID Checkbox
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.padding(vertical = 12.dp)
-                            ) {
+                            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 12.dp)) {
                                 Checkbox(checked = false, onCheckedChange = {})
                                 Text("Allow FaceID", style = MaterialTheme.typography.bodyLarge)
                             }
 
-                            // Continue Button
                             Button(
                                 onClick = {
                                     appViewModel.findEmployeeInEmployer(
-                                        employerId = appViewModel.user.employerId,
-                                        employeeId = appViewModel.user.id,
-                                        email = appViewModel.user.email
+                                        employerId = employerId,
+                                        employeeId = id,
+                                        email = email
                                     ).observeForever { searchResult ->
                                         result = searchResult
                                     }
@@ -181,9 +155,7 @@ fun WelcomeScreen(
                         }
                     }
                 },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight(), // Stretches to bottom, matching HomeScreen
+                modifier = Modifier.fillMaxWidth().fillMaxHeight(),
                 onClick = {}
             )
         }
