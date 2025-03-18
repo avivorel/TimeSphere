@@ -189,6 +189,7 @@ fun VerifyCredentials(
                                         value = appViewModel.userPassword,
                                         onValueChange = { appViewModel.userPassword = it },
                                         label = "Password",
+                                        showRequirements = true,
                                         modifier = Modifier.weight(1f)
                                     )
                                     Spacer(modifier = Modifier.width(16.dp))
@@ -196,6 +197,7 @@ fun VerifyCredentials(
                                         value = appViewModel.userPasswordRepeated,
                                         onValueChange = { appViewModel.userPasswordRepeated = it },
                                         label = "Repeat Password",
+                                        showRequirements = false,
                                         modifier = Modifier.weight(1f)
                                     )
                                 }
@@ -292,13 +294,13 @@ fun ReadOnlyTextField(
     )
 }
 
-
 @Composable
 fun PasswordTextField(
     value: String,
     onValueChange: (String) -> Unit,
     label: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    showRequirements: Boolean = true // Added showRequirements parameter
 ) {
     var passwordVisible by remember { mutableStateOf(false) }
     var isPasswordValid by remember { mutableStateOf(true) }
@@ -349,28 +351,29 @@ fun PasswordTextField(
             )
         )
 
-        if (!isPasswordValid) {
-            Text(
-                text = "⚠ Password requirements not met!",
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.Red,
-                modifier = Modifier.padding(top = 4.dp)
-            )
-        }
-
-        Column(modifier = Modifier.padding(top = 8.dp)) {
-            passwordRequirements.forEachIndexed { index, (_, requirementText) ->
-                val color = if (requirementMet[index]) Color.Green else Color.Red
+        if (showRequirements) {
+            if (!isPasswordValid) {
                 Text(
-                    text = requirementText,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = color
+                    text = "⚠ Password requirements not met!",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Red,
+                    modifier = Modifier.padding(top = 4.dp)
                 )
+            }
+
+            Column(modifier = Modifier.padding(top = 8.dp)) {
+                passwordRequirements.forEachIndexed { index, (_, requirementText) ->
+                    val color = if (requirementMet[index]) Color.Green else Color.Red
+                    Text(
+                        text = requirementText,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = color
+                    )
+                }
             }
         }
     }
 }
-
 fun validatePassword(password: String): Boolean {
     val passwordPattern = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#\$%^&+=!])(?=\\S+$).{8,}$"
     val pattern = Pattern.compile(passwordPattern)
