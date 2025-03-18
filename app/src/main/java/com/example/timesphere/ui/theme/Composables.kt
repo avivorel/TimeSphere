@@ -5,17 +5,27 @@ import android.content.Intent
 import android.provider.MediaStore
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -23,6 +33,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -31,30 +42,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import androidx.compose.foundation.background
-import androidx.compose.material3.*
 import coil.compose.rememberAsyncImagePainter
-import com.example.timesphere.model.Utils
-import androidx.compose.foundation.Image
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.graphics.Brush
 import com.example.timesphere.R
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.tween
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextAlign
+import com.example.timesphere.model.Utils
 
 val utils = Utils()
 
@@ -77,23 +76,21 @@ fun RoundedCornerCardTop(
         content()
     }
 }
-
 @Composable
 fun ClockInButton(
     text: String,
+    isClockedIn: Boolean, // Now received from HomeScreen
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // State to track if the button is in "clock in" or "clock out" mode
-    var isClockedIn by remember { mutableStateOf(text.lowercase().contains("out")) }
-
     // Scale animation for press effect
     val pressScale by animateFloatAsState(
         targetValue = 1f,
-        animationSpec = tween(durationMillis = 200), label = ""
+        animationSpec = tween(durationMillis = 200),
+        label = "PressScale"
     )
 
-    // Pulse animation for vibrancy (only for clock-in state)
+    // Pulse animation (only for clock-in state)
     val pulseScale = remember { Animatable(1f) }
     LaunchedEffect(isClockedIn) {
         if (!isClockedIn) {
@@ -106,7 +103,7 @@ fun ClockInButton(
         }
     }
 
-    // Glow animation (rotating subtle border effect)
+    // Glow rotation animation
     val glowRotation = remember { Animatable(0f) }
     LaunchedEffect(Unit) {
         while (true) {
@@ -115,15 +112,14 @@ fun ClockInButton(
         }
     }
 
-    // Gradient background based on clock state
-    // Solid background color based on clock state
-    val buttonColor: Color = if (isClockedIn) {
-        MaterialTheme.colorScheme.error // Red for clock out
+    // Button color logic (controlled externally now)
+    val buttonColor = if (isClockedIn) {
+        MaterialTheme.colorScheme.error // Red when clocked in
     } else {
-        MaterialTheme.colorScheme.primary // Green/Primary for clock in
+        MaterialTheme.colorScheme.primary // Green when clocked out
     }
 
-    // Glow gradient for the outer ring
+    // Glow effect gradient
     val glowGradient = Brush.linearGradient(
         colors = listOf(
             MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
@@ -134,32 +130,29 @@ fun ClockInButton(
 
     Box(
         modifier = modifier
-            .size(220.dp) // Slightly bigger size overall
-            .shadow(24.dp, CircleShape, clip = false) // Increase shadow, no clipping
+            .size(220.dp) // Maintain original button size
+            .shadow(24.dp, CircleShape, clip = false)
     ) {
         // Outer Glow Ring (rotating)
         Box(
             modifier = Modifier
                 .matchParentSize()
-                .graphicsLayer(rotationZ = glowRotation.value) // Only glow rotates
+                .graphicsLayer(rotationZ = glowRotation.value)
                 .background(glowGradient, CircleShape)
         )
 
-        // Inner Button (static, slightly smaller)
+        // Inner Button
         Box(
             modifier = Modifier
-                .size(180.dp) // Make inner button smaller to expose glow
+                .size(180.dp) // Keep inner button smaller for glow effect
                 .align(Alignment.Center)
                 .clip(CircleShape)
-                .background(buttonColor)
+                .background(buttonColor) // Dynamic color based on isClockedIn
                 .graphicsLayer(
                     scaleX = pressScale * pulseScale.value,
                     scaleY = pressScale * pulseScale.value
                 )
-                .clickable {
-                    onClick()
-                    isClockedIn = !isClockedIn
-                },
+                .clickable { onClick() }, // Clicking triggers callback (no direct toggling)
             contentAlignment = Alignment.Center
         ) {
             Column(
@@ -167,7 +160,10 @@ fun ClockInButton(
                 verticalArrangement = Arrangement.Center
             ) {
                 Icon(
-                    painter = painterResource(id = if (isClockedIn) android.R.drawable.ic_menu_save else android.R.drawable.ic_menu_close_clear_cancel),
+                    painter = painterResource(
+                        id = if (isClockedIn) android.R.drawable.ic_menu_save
+                        else android.R.drawable.ic_menu_close_clear_cancel
+                    ),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onPrimaryContainer,
                     modifier = Modifier.size(48.dp)
@@ -182,7 +178,6 @@ fun ClockInButton(
             }
         }
     }
-
 }
 
 @Composable

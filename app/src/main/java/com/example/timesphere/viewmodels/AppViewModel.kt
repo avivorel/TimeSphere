@@ -32,6 +32,8 @@ class AppViewModel : ViewModel(){
     var hasError by mutableStateOf(false)
     var clockText by mutableStateOf("Clock In")
     val utils = Utils()
+    var isClockedIn by mutableStateOf(false)  // Add this inside AppViewModel
+
 
     // Job location coordinates (example: New York City)
     private val JOB_LATITUDE = 32.7757842 // Replace with your job location
